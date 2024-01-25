@@ -1,0 +1,8 @@
+setup.py
+projetPDP/__init__.py
+projetPDP/main.py
+projetPDP.egg-info/PKG-INFO
+projetPDP.egg-info/SOURCES.txt
+projetPDP.egg-info/dependency_links.txt
+projetPDP.egg-info/entry_points.txt
+projetPDP.egg-info/top_level.txt
