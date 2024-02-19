@@ -4,7 +4,7 @@ import csv
 from datetime import datetime, timedelta
 
 # URL de base avec le format de date
-base_url = "https://maree.shom.fr/harbor/ARCACHON_EYRAC/wl/0?date={}&utc=standard"
+base_url = "https://maree.shom.fr/harbor/PAUILLAC/wl/0?date={}&utc=standard"
 
 # Utilise un navigateur Chrome (tu dois avoir chromedriver installé et dans le PATH)
 driver = webdriver.Chrome()
