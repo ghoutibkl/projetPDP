@@ -1,0 +1,376 @@
+<CountryCard>:
+    # text: "Friend"
+    
+    # divider: None
+    on_release: app.show_country(self.text)
+    pos_hint: {'center_x': 0.5}
+    syze_hint_x: 1
+    # elevation: 10
+    disabled: True if self.text and  len(app.ports[self.text]) == 0 else False
+
+    MDLabel:
+        text: root.text
+        halign: 'center'
+
+
+           
+        
+<RVConutry>:
+    viewclass: 'CountryCard'
+    RecycleGridLayout:
+        default_size: None, dp(80)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        # orientation: 'vertical'
+        spacing: dp(10)
+        cols: 4
+        pos_hint: {'center_x': 0.5}
+
+  
+
+<CountryScreen@MDBoxLayout>:
+    orientation: 'vertical'
+    size_hint: 1, 1
+    padding: 0
+    spacing: dp(10)
+    md_bg_color: [0.9333333333333333, 0.9333333333333333, 0.9333333333333333, 1.0]
+
+
+    MDToolbar:
+        title: "Country Screen"
+        left_action_items: [["menu", lambda x: app.show_date_picker()]]
+
+        # right_action_items: [["dots-vertical", lambda x: app.callback_1()], ["clock", lambda x: app.callback_2()]]
+        # right_action_items: [["magnify", lambda x: app.search()]]
+    
+
+    
+    MDBoxLayout :
+        size_hint: 1, 1
+        orientation: 'vertical'
+        MDBoxLayout:
+            size_hint: 1, None
+            height: self.minimum_height
+     
+  
+
+            # mb_bg_color: [1.0, 0, 1.0, 1.0]
+
+            MDIconButton:
+                # size_hint: None, None
+            
+                icon: 'magnify'
+
+            MDTextField:
+                
+                id: search_field
+                hint_text: 'Search icon'
+                on_text: rv_country.search(self.text)
+
+        
+        RVConutry:
+            id : rv_country
+    
+
+
+
+
+<PortCard>:
+
+    on_release: app.go_model_1(self.country,self.text)
+ 
+
+    disabled: True if self.text and self.country and len(app.ports[self.country][self.text]) == 0 else False
+
+    MDLabel:
+        text: root.text
+        halign: 'center'
+
+
+<RVPort>:
+    viewclass: 'PortCard'
+    RecycleGridLayout:
+        default_size: None, dp(80)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        # orientation: 'vertical'
+        spacing: dp(10)
+        cols: 2
+
+<PortScreen@MDBoxLayout>:
+    orientation: 'vertical'
+    size_hint: 1, 1
+    padding: 0
+    spacing: dp(10)
+    md_bg_color: [0.9333333333333333, 0.9333333333333333, 0.9333333333333333, 1.0]
+
+    country: ''
+    MDToolbar:
+        title:  root.country +" Ports"
+        left_action_items: [["arrow-left", lambda x: app.go_menu()]]
+
+
+        # right_action_items: [["magnify", lambda x: app.search()]]
+    MDBoxLayout :
+        size_hint: 1, 1
+        orientation: 'vertical'
+        MDBoxLayout:
+            id: search_box
+            size_hint: 1, None
+            height: self.minimum_height
+            
+     
+  
+
+            # mb_bg_color: [1.0, 0, 1.0, 1.0]
+
+            MDIconButton:
+                # size_hint: None, None
+            
+                icon: 'magnify'
+
+            MDTextField:
+                
+                id: search_field
+                hint_text: 'Search icon'
+                on_text: rv_.search(self.text)
+
+        
+        RVPort:
+            id : rv_
+    
+
+
+<GraphModel_1>:
+    orientation: 'vertical'
+    size_hint: 1,1  
+    height: dp(200)
+    padding: dp(10)
+    spacing: dp(10)
+    md_bg_color: [0.9333333333333333, 0.9333333333333333, 0.9333333333333333, 1.0]
+
+
+
+<ConstituantChip>:
+
+    on_release: app.calculate2(self.text)
+    icon: ''
+    check: True
+    active: True
+    # tooltip_text: root.text2
+    
+
+
+
+<RVConstituant>:
+    viewclass: 'ConstituantChip'
+    RecycleGridLayout:
+        default_size: None, dp(30)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        # orientation: 'vertical'
+        spacing: dp(10)
+        cols: 7
+
+<Model_1@MDBoxLayout>:
+    orientation: 'vertical'
+    country: ''
+    port: ''
+    MDToolbar:
+        title:  root.country +" -- "+ root.port
+        left_action_items: [["arrow-left", lambda x: app.show_country(root.country)]]
+
+        # right_action_items: [["dots-vertical", lambda x: app.callback_1()], ["clock", lambda x: app.callback_2()]]
+        # right_action_items: [["magnify", lambda x: app.search()]]
+
+        right_action_items: [["printer", lambda x: app.callback_1()], ["calendar-month", lambda x: app.callback_2()]]
+    GraphModel_1 :
+        id: graph
+        size_hint: 1, .6
+    MDBoxLayout :
+        size_hint: 1, .4
+        # orientation: 'vertical'
+        padding: dp(10)
+
+        md_bg_color: [0.9333333333333333, 0.9333333333333333, 0.9333333333333333, 1.0]
+        RVConstituant :
+
+
+<MenuCard@MDCard>:
+    orientation: 'vertical'
+    size_hint: 1, 1
+    padding: dp(10)
+    spacing: dp(10)
+    elevation: 0
+    text: ''
+
+    MDLabel:
+        text: root.text
+        # halign: 'center'
+
+<MyDatePicker@MDBoxLayout>:
+    text: ''
+
+    orientation: 'vertical'
+    size_hint: 1, None
+    height: dp(80)
+
+
+    MDGridLayout:
+        cols: 2
+        MDTextField:
+
+            size_hint: 1, None
+            hint_text:  root.text
+            height: "30dp"
+            text: app.from_date
+
+        MDIconButton:
+            icon: "calendar-month"
+            on_press: app.show_date_picker(root.text)
+
+
+
+<Search_dropdown>:
+    # elevation: 10
+
+    MDBoxLayout:
+        orientation: 'vertical'
+        spacing: dp(10)
+        # padding: dp(20)
+        md_bg_color: [1.0, 1.0, 1.0, 1.0]
+        MDBoxLayout:
+            size_hint: 1, None
+            height: self.minimum_height
+  
+
+            # mb_bg_color: [1.0, 0, 1.0, 1.0]
+
+
+
+            MDIconButton:
+                # size_hint: None, None
+            
+                icon: 'magnify'
+
+            MDTextField:
+                
+                id: search_field
+                hint_text: 'Search icon'
+                on_text: root.set_list_md_icons(self.text, True)
+        
+
+        RecycleView:
+            id: rv
+            key_viewclass: 'viewclass'
+            key_size: 'height'
+
+            RecycleBoxLayout:
+                padding: dp(10)
+                default_size: None, dp(48)
+                default_size_hint: 1, None
+                size_hint_y: None
+                height: self.minimum_height
+                orientation: 'vertical'
+
+<HomeScreen@MDBoxLayout>:
+
+    orientation: 'vertical'
+    size_hint: 1, 1
+    padding: 0
+    spacing: dp(10)
+    md_bg_color: [0.9333333333333333, 0.9333333333333333, 0.9333333333333333, 1.0]
+
+    # MDToolbar:
+    #     title: "Menu"
+
+    #     right_action_items: [["dots-vertical", lambda x: app.callback_1()], ["clock", lambda x: app.show_date_picker()]]
+    #     # right_action_items: [["magnify", lambda x: app.search()]]
+    MDBoxLayout:
+        size_hint: 1, 1
+        orientation: 'vertical'
+        GraphModel_1 :
+            id: graph
+            size_hint: 1, .6
+        MDBoxLayout :
+        
+            size_hint: 1, .4
+ 
+            padding: dp(10)
+            spacing: dp(10)
+            MDBoxLayout:
+                orientation: 'vertical'
+                size_hint: .3, 1
+                spacing: dp(50)
+                #TODO : DROPDOWN PORT
+                MDCard:
+                    padding: "5dp"
+
+                    size_hint_x : 1
+                    size_hint_y : None
+                    height: dp(30)
+                    # width: self.minimum_width
+                    # md_bg_color: [1.0, 1.0, 0, 1]
+                    on_release:  app.search_dropdown.open()
+                    elevation: 0
+                 
+
+                    MDLabel:
+                        text: app.selcted 
+
+
+          
+
+                # FROM 
+
+                # FROM 
+                # MyDatePicker:
+                #     text: 'To'
+
+                MDBoxLayout:
+                    size_hint: 1, 1
+                    # height: self.minimum_height
+                    orientation: 'vertical'
+                    spacing: dp(10)
+
+                    MDRaisedButton:
+                        text: "load"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 1
+                        md_bg_color: 0,.1 , 1, 1
+                        on_release: app.file_manager_open()
+                    MyDatePicker:
+                        text: 'From'
+            MDCard:
+                size_hint: 1, 1
+                # height: self.minimum_height
+                padding: dp(10)
+                # RVConstituant :
+
+            MDBoxLayout:
+                size_hint: None, 1
+                width: self.minimum_width
+      
+                
+                MDRaisedButton:
+                    text: "calculate"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    md_bg_color: 0, 1, 0, 1
+                    on_release: app.predcition(graph)
+                
+
+        
+
+
+MDScreen:
+    padding: 0
+    HomeScreen:
+        id: home_screen 
+    
+
+    # radius: [25, 0, 0, 0]
+    # md_bg_color: app.theme_cls.primary_color

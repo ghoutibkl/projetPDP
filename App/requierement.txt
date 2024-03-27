@@ -1,0 +1,9 @@
+kivy 
+kivymd==0.104.2
+numpy
+scipy
+tqdm
+Kivy-Garden
+kivy_garden.graph
+pandas
+scikit-learn
