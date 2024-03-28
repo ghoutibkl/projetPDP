@@ -39,6 +39,8 @@ from kivy.core.window import Window
 
 import os
 # os.path.dirname(os.path.abspath(__file__))
+from kivy.storage.jsonstore import JsonStore
+
 
 
 class CountryCard(MDCard):
@@ -92,6 +94,9 @@ class ConstituantChip(MDChip,MDTooltip):
     def __init__(self, **kwargs):
         super(ConstituantChip, self).__init__(**kwargs)
 
+
+class Add_port(ModalView):
+    pass
 
 class Search_dropdown(ModalView):
     datas = ListProperty([])
@@ -265,50 +270,95 @@ class MainApp(MDApp):
     date_mode= StringProperty("from") 
     from_date = StringProperty("2023-10-01")  
     tide_data = ObjectProperty(None)
+    store = ObjectProperty(JsonStore('data.json'))
+    constituants_description = DictProperty({"M2": 	"Principal lunar semidiurnal constituent",                  
+                                    "S2":"Principal solar semidiurnal constituent",
+                                    "N2":"Larger lunar elliptic semidiurnal constituent",
+                                    "K1":"Lunar diurnal constituent",
+                                    "M4":"Shallow water overtides of principal lunar constituent",
+                                    "O1":"Lunar diurnal constituent",
+                                    "M6":"Shallow water overtides of principal lunar constituent",
+                                    "MK3":"Shallow water terdiurnal",
+                                    "S4":"Shallow water overtides of principal solar constituent",
+                                    "MN4":"Shallow water quarter diurnal constituent",
+                                    "NU2":"Larger lunar evectional constituent",
+                                    "S6": "Shallow water overtides of principal solar constituent",
+                                    "MU2":"Variational constituent",
+                                    "2N2":"Lunar elliptical semidiurnal second-order constituent",
+                                    "OO1":"Lunar diurnal",
+                                    "S1":"Solar diurnal constituent",
+                                    "M1":"Smaller lunar elliptic diurnal constituent",
+                                    "J1":"Smaller lunar elliptic diurnal constituent",
+                                    "MM":"Lunar monthly constituent",
+                                    "SSA":"Solar semiannual constituent",
+                                    "SA":"Solar annual constituent",
+                                    "MSF":"Lunisolar synodic fortnightly constituent",
+                                    "MF":"Lunisolar fortnightly constituent",
+                                    "RHO":"Larger lunar evectional diurnal constituent",
+                                    "Q1":"Larger lunar elliptic diurnal constituent",
+                                    "T2":"Larger solar elliptic constituent",
+                                    "R2":"Smaller solar elliptic constituent",
+                                    "2Q1":"Larger elliptic diurnal",
+                                    "P1":"Solar diurnal constituent",
+                                    "M3":"Lunar terdiurnal constituent",
+                                    "L2":"Smaller lunar elliptic semidiurnal constituent",
+                                    "2MK3":"Shallow water terdiurnal constituent",
+                                    "K2":"Lunisolar semidiurnal constituent",
+                                    "M8": "Shallow water eighth diurnal constituent",
+                                    "MS4":"Shallow water quarter diurnal constituent",
+                                    "2SM2":"Shallow water semidiurnal constituent",
+                                    "LAM2":"Smaller lunar evectional constituent",})
+    
+
     ports = DictProperty({"France": {},
                         "Etats-Unis": {
                             "Los Angeles" : [],
                             "New York" : [],
                             "San Francisco" : [],
                             "San Luis" : {
-                                    "M2": [   1.61,	296.3,	28.984104,	"Principal lunar semidiurnal constituent"],                  
-                                    "S2":[    0.49,	283.7,	30.0,       "Principal solar semidiurnal constituent"],
-                                    "N2":[    0.37,	276.0,	28.43973,	"Larger lunar elliptic semidiurnal constituent"],
-                                    "K1":[    1.17,	94.4,	15.041069,	"Lunar diurnal constituent"],
-                                    "M4":[    0.01,	171.0,	57.96821,	"Shallow water overtides of principal lunar constituent"],
-                                    "O1":[    0.73,	87.3,	13.943035,	"Lunar diurnal constituent"],
-                                    "M6":[    0.0,	0.0	 ,   86.95232,	"Shallow water overtides of principal lunar constituent"],
-                                    "MK3":[   0.0,	243.6,	44.025173,	"Shallow water terdiurnal"],
-                                    "S4":[    0.0,	185.1,	60.0,       "Shallow water overtides of principal solar constituent"],
-                                    "MN4":[   0.0,	118.4,	57.423832,	"Shallow water quarter diurnal constituent"],
-                                    "NU2":[   0.07,	282.4,	28.512583,	"Larger lunar evectional constituent"],
-                                    "S6":[    0.0,	43.6,	90.0,       "Shallow water overtides of principal solar constituent"],
-                                    "MU2":[   0.05,	239.6,	27.968208,	"Variational constituent"],
-                                    "2N2":[   0.05,	250.9,	27.895355,	"Lunar elliptical semidiurnal second-order constituent"],
-                                    "OO1":[   0.04,	118.5,	16.139101,	"Lunar diurnal"],
-                                    "S1":[    0.02,	206.7,	15.0,       "Solar diurnal constituent"],
-                                    "M1":[    0.04,	114.2,	14.496694,	"Smaller lunar elliptic diurnal constituent"],
-                                    "J1":[    0.07,	102.2,	15.5854435,	"Smaller lunar elliptic diurnal constituent"],
-                                    "MM":[    0.0,	0.0	 ,   0.5443747,	"Lunar monthly constituent"],
-                                    "SSA":[   0.0,	0.0	 ,   0.0821373,	"Solar semiannual constituent"],
-                                    "SA":[    0.23,	190.2,	0.0410686,	"Solar annual constituent"],
-                                    "MSF":[   0.0,	0.0	 ,   1.0158958,	"Lunisolar synodic fortnightly constituent"],
-                                    "MF":[    0.03,	120.5,	1.0980331,	"Lunisolar fortnightly constituent"],
-                                    "RHO":[   0.02,	85.2,	13.471515,	"Larger lunar evectional diurnal constituent"],
-                                    "Q1":[    0.13,	84.3,	13.398661,	"Larger lunar elliptic diurnal constituent"],
-                                    "T2":[    0.03,	271.2,	29.958933,	"Larger solar elliptic constituent"],
-                                    "R2":[    0.0,	0.0	 ,   30.041067,	"Smaller solar elliptic constituent"],
-                                    "2Q1":[   0.02,	91.5,	12.854286,	"Larger elliptic diurnal"],
-                                    "P1":[    0.37,	92.5,	14.958931,	"Solar diurnal constituent"],
-                                    "M3":[    0.01,	13.1,	43.47616,	"Lunar terdiurnal constituent"],
-                                    "L2":[    0.03,	293.0,	29.528479,	"Smaller lunar elliptic semidiurnal constituent"],
-                                    "2MK3":[  0.0,	233.4,	42.92714,	"Shallow water terdiurnal constituent"],
-                                    "K2":[    0.14,	275.7,	30.082138,	"Lunisolar semidiurnal constituent"],
-                                    "M8":[    0.0,	0.0	 ,   115.93642,	"Shallow water eighth diurnal constituent"],
-                                    "MS4":[   0.0,	162.5,	58.984104,	"Shallow water quarter diurnal constituent"],
-                                    "2SM2":[  0.01,	104.1,	31.015896,	"Shallow water semidiurnal constituent"],
-                                    "LAM2":[  0.01,	305.9,	29.455626,	"Smaller lunar evectional constituent"],},
-                        },})
+                            "constituants": {
+                                    "M2": [1.61,	296.3,	28.984104],                  
+                                    "S2":[0.49,	283.7,	30.0,     ],
+                                    "N2":[0.37,	276.0,	28.43973],
+                                    "K1":[1.17,	94.4,	15.041069],
+                                    "M4":[ 0.01,	171.0,	57.96821],
+                                    "O1":[0.73,	87.3,	13.943035],
+                                    "M6":[0.0,	0.0	 ,   86.95232],
+                                    "MK3":[0.0,	243.6,	44.025173],
+                                    "S4":[0.0,	185.1,	60.0,     ],
+                                    "MN4":[0.0,	118.4,	57.423832],
+                                    "NU2":[0.07,	282.4,	28.512583],
+                                    "S6":[0.0,	43.6,	90.0,     ],
+                                    "MU2":[0.05,	239.6,	27.968208],
+                                    "2N2":[0.05,	250.9,	27.895355],
+                                    "OO1":[0.04,	118.5,	16.139101],
+                                    "S1":[0.02,	206.7,	15.0,     ],
+                                    "M1":[0.04,	114.2,	14.496694],
+                                    "J1":[0.07,	102.2,	15.5854435],
+                                    "MM":[0.0,	0.0	 ,   0.5443747],
+                                    "SSA":[0.0,	0.0	 ,   0.0821373],
+                                    "SA":[0.23,	190.2,	0.0410686],
+                                    "MSF":[0.0,	0.0	 ,   1.0158958],
+                                    "MF":[0.03,	120.5,	1.0980331],
+                                    "RHO":[0.02,	85.2,	13.471515],
+                                    "Q1":[0.13,	84.3,	13.398661],
+                                    "T2":[0.03,	271.2,	29.958933],
+                                    "R2":[0.0,	0.0	 ,   30.041067],
+                                    "2Q1":[0.02,	91.5,	12.854286],
+                                    "P1":[0.37,	92.5,	14.958931],
+                                    "M3":[0.01,	13.1,	43.47616],
+                                    "L2":[0.03,	293.0,	29.528479],
+                                    "2MK3":[0.0,	233.4,	42.92714],
+                                    "K2":[    0.14,	275.7,	30.082138],
+                                    "M8":[    0.0,	0.0	 ,   115.93642],
+                                    "MS4":[   0.0,	162.5,	58.984104],
+                                    "2SM2":[  0.01,	104.1,	31.015896],
+                                    "LAM2":[  0.01,	305.9,	29.455626],},
+                            },
+                            
+                            }
+                        
+                        ,})
     
 
     def __init__(self, **kwargs):
@@ -318,8 +368,8 @@ class MainApp(MDApp):
         self.file_manager = MDFileManager(
             exit_manager=self.exit_manager,
             select_path=self.select_path,
-    
         )
+
     def build(self):
         self.screen = Builder.load_file("app.kv")
         return self.screen
@@ -341,7 +391,17 @@ class MainApp(MDApp):
             return False
         finally :
             pass
-    
+
+    def get_gata(self):
+        Logger.info("App: Getting Data")
+        if  self.cache.exists('user'):
+            self.ports = self.store.get('ports')
+
+
+    def save_data(self):
+        Logger.info("App: Saving Data")
+        self.store.put('ports',data=self.ports)
+
     def on_start(self):
         Logger.info("App: Starting")
 
@@ -471,11 +531,6 @@ class MainApp(MDApp):
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
         date_dialog.open()
 
-
-    
-
-
-
     def on_save(self, instance, value, date_range):
         '''
         Events called when the "OK" dialog box button is clicked.
@@ -506,10 +561,10 @@ class MainApp(MDApp):
         snackbar.open()
         self.predcition2(self.screen.ids.home_screen.ids.graph)
 
-    def predcition2(self,graph):
 
-        print("prediction",graph)
-        # Define the constituents
+    def train(self):
+        Logger.info("App: Train")
+        
         constituents = [
             ('M2', 1.8, 190.4, 28.984104),
             ('S2', 0.45, 196.3, 30.0),
@@ -519,6 +574,12 @@ class MainApp(MDApp):
             ('P1', 0.39, 215.0, 14.958931),
             ('M4', 0.0, 259.1, 57.96821)
         ]
+
+    def predcition2(self,graph):
+
+        print("prediction",graph)
+        # Define the constituents
+
 
 
         if self.tide_data is not None:
@@ -602,8 +663,6 @@ class MainApp(MDApp):
 
         graph.update_graph(noaa_verified_heights)
         graph.graph.add_plot(noaa_verified_heights_plot)
-
-
 
     def predcition(self,graph):
 
@@ -761,7 +820,6 @@ class MainApp(MDApp):
         self.load_data(path)
         self.exit_manager()
         
-
     def exit_manager(self, *args):
         '''Called when the user reaches the root of the directory tree.'''
 

@@ -361,7 +361,83 @@
                     text_color: 1, 1, 1, 1
                     md_bg_color: 0, 1, 0, 1
                     on_release: app.predcition(graph)
+
+
+
+<Add_country>:
+    MDBoxLayout:
+        size_hint: 1, 1
+        orientation: 'vertical'
+        spacing: dp(10)
+        
+
                 
+<Add_port>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        spacing: dp(10)
+        padding: dp(10)
+        md_bg_color: [1.0, 1.0, 1.0, 1.0]
+        MDTextField:
+            id: port_name
+            hint_text: 'Port Name'
+            helper_text: "Enter the port name"
+            helper_text_mode: "on_focus"
+            icon_right: "city"
+            icon_right_color: app.theme_cls.primary_color
+            mode: "fill"
+            required: True
+            max_text_length: 30
+            on_text: app.set_text_field_text(self.text)
+        MDTextField:
+            id: port_country
+            hint_text: 'Country'
+            helper_text: "Enter the country name"
+            helper_text_mode: "on_focus"
+            icon_right: "earth"
+            icon_right_color: app.theme_cls.primary_color
+            mode: "fill"
+            required: True
+            max_text_length: 30
+            on_text: app.set_text_field_text(self.text)
+        MDTextField:
+            id: port_lat
+            hint_text: 'Latitude'
+            helper_text: "Enter the latitude"
+            helper_text_mode: "on_focus"
+            icon_right: "latitude"
+            icon_right_color: app.theme_cls.primary_color
+            mode: "fill"
+            required: True
+            max_text_length: 30
+            on_text: app.set_text_field_text(self.text)
+        MDTextField:
+            id: port_long
+            hint_text: 'Longitude'
+            helper_text: "Enter the longitude"
+            helper_text_mode: "on_focus"
+            icon_right: "longitude"
+            icon_right_color: app.theme_cls.primary_color
+            mode: "fill"
+            required: True
+            max_text_length: 30
+            on_text: app.set_text_field_text(self.text)
+        MDTextField:
+            id: port_type
+            hint_text: 'Type'
+            helper_text: "Enter the port type"
+            helper_text_mode: "on_focus"
+            icon_right: "type"
+            icon_right_color: app.theme_cls.primary_color
+            mode: "fill"
+            required: True
+            max_text_length: 30
+            on_text: app.set_text_field_text(self.text)
+        MDTextField:
+            id: port_size
+            hint_text: 'Size'
+            helper_text: "Enter the port size"
+            helper_text
 
         
 
