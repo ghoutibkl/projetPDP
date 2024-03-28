@@ -200,7 +200,6 @@ class GraphModel_1(MDRelativeLayout):
 
     def __init__(self, **kwargs):
         super(GraphModel_1, self).__init__(**kwargs)
-
         # self.prediction = np.arange(0, 24, 0.1)
         self.prediction= np.load("sanLuis.npy")
 
@@ -256,6 +255,9 @@ class GraphModel_1(MDRelativeLayout):
 
 
 class MainApp(MDApp):
+    
+    start_date = StringProperty("2023-10-01")#111
+    end_date = StringProperty("2023-10-01")#111
     model_1 = ObjectProperty(None)
     portScreen = ObjectProperty(None)
     countryScreen = ObjectProperty(None)
@@ -466,8 +468,13 @@ class MainApp(MDApp):
         
         self.calculate()
    
-    def show_date_picker(self,sender):
+    '''def show_date_picker(self,sender):
         date_dialog = MDDatePicker(year=1983, month=4, day=12)
+        date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
+        date_dialog.open()'''
+    #111
+    def show_date_picker(self, sender):
+        date_dialog = MDDatePicker(mode="range")
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
         date_dialog.open()
 
@@ -488,9 +495,17 @@ class MainApp(MDApp):
         :param date_range: list of 'datetime.date' objects in the selected range;
         :type date_range: <class 'list'>;
         '''
+        if date_range:
+            self.start_date = date_range[0].strftime("%Y-%m-%d")
+            self.end_date = date_range[-1].strftime("%Y-%m-%d")
+        else:
+            self.start_date = value.strftime("%Y-%m-%d")
+            self.end_date = self.start_date
+        print("Range selected from", self.start_date, "to", self.end_date)
 
-        print(instance, value, date_range)
-        self.from_date = value.strftime("%Y-%m-%d")
+        #111
+        #print(instance, value, date_range)
+        #self.from_date = value.strftime("%Y-%m-%d")
 
     def on_cancel(self, instance, value):
         '''Events called when the "CANCEL" dialog box button is clicked.'''
@@ -780,3 +795,35 @@ class MainApp(MDApp):
     
 
 MainApp().run()
+
+'''
+
+
+def update_graph(self, plot_data):
+    days = (self.end_date - self.start_date).days + 1 
+    hours = days * 24  # تعداد ساعت‌های انتخاب شده
+    
+    self.graph.xmax = hours
+    self.graph.x_ticks_major = hours / days  # نمایش هر روز به عنوان یک میانگین بزرگ
+    self.graph.ymax = max(plot_data)
+    self.graph.ymin = min(plot_data)
+    
+    self.plot.points = [(i, p) for i, p in enumerate(plot_data)]
+    self.graph.add_plot(self.plot)
+
+
+
+def calculate(self):
+ 
+    filtered_data = data[(data['date'] >= self.start_date) & (data['date'] <= self.end_date)]
+
+def on_save(self, instance, value, date_range):
+    if date_range:
+        self.start_date = datetime.strptime(date_range[0], "%Y-%m-%d")
+        self.end_date = datetime.strptime(date_range[1], "%Y-%m-%d")
+    else:
+        self.start_date = self.end_date = datetime.strptime(value, "%Y-%m-%d")
+    
+    # پس از ذخیره تاریخ، نمودار را به‌روزرسانی کنید.
+    self.calculate()
+'''
