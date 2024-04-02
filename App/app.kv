@@ -342,6 +342,13 @@
                         text_color: 1, 1, 1, 1
                         md_bg_color: 0,.1 , 1, 1
                         on_release: app.file_manager_open()
+                    MDRaisedButton:
+                        text: "add"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 1
+                        md_bg_color: 0,.1 , 1, 1
+                        on_release: app.ModalAdd.open()
+
                     MyDatePicker:
                         text: 'From'
             MDCard:
@@ -364,80 +371,99 @@
 
 
 
-<Add_country>:
-    MDBoxLayout:
-        size_hint: 1, 1
-        orientation: 'vertical'
-        spacing: dp(10)
+<ModalAdd@ModalView>:
+    size_hint: .8, .8
+    md_bg_color: 1,1 , 1, 1
+<Add_country@MDBoxLayout>:
+    size_hint: 1, 1
+    orientation: 'vertical'
+    spacing: dp(10)
+    md_bg_color: 1,1 , 1, 1
+
+    MDTextField:
+        hint_text: "No helper text"
+        mode: "rectangle"
+
+        
 
 
                 
-<Add_port>:
-    MDBoxLayout:
-        orientation: 'vertical'
-        spacing: dp(10)
-        padding: dp(10)
-        md_bg_color: [1.0, 1.0, 1.0, 1.0]
-        MDTextField:
-            id: port_name
-            hint_text: 'Port Name'
-            helper_text: "Enter the port name"
-            helper_text_mode: "on_focus"
-            icon_right: "city"
-            icon_right_color: app.theme_cls.primary_color
-            mode: "fill"
-            required: True
-            max_text_length: 30
-            on_text: app.set_text_field_text(self.text)
-        MDTextField:
-            id: port_country
-            hint_text: 'Country'
-            helper_text: "Enter the country name"
-            helper_text_mode: "on_focus"
-            icon_right: "earth"
-            icon_right_color: app.theme_cls.primary_color
-            mode: "fill"
-            required: True
-            max_text_length: 30
-            on_text: app.set_text_field_text(self.text)
-        MDTextField:
-            id: port_lat
-            hint_text: 'Latitude'
-            helper_text: "Enter the latitude"
-            helper_text_mode: "on_focus"
-            icon_right: "latitude"
-            icon_right_color: app.theme_cls.primary_color
-            mode: "fill"
-            required: True
-            max_text_length: 30
-            on_text: app.set_text_field_text(self.text)
-        MDTextField:
-            id: port_long
-            hint_text: 'Longitude'
-            helper_text: "Enter the longitude"
-            helper_text_mode: "on_focus"
-            icon_right: "longitude"
-            icon_right_color: app.theme_cls.primary_color
-            mode: "fill"
-            required: True
-            max_text_length: 30
-            on_text: app.set_text_field_text(self.text)
-        MDTextField:
-            id: port_type
-            hint_text: 'Type'
-            helper_text: "Enter the port type"
-            helper_text_mode: "on_focus"
-            icon_right: "type"
-            icon_right_color: app.theme_cls.primary_color
-            mode: "fill"
-            required: True
-            max_text_length: 30
-            on_text: app.set_text_field_text(self.text)
-        MDTextField:
-            id: port_size
-            hint_text: 'Size'
-            helper_text: "Enter the port size"
-         
+<Add_port@MDBoxLayout>:
+    md_bg_color: 1,1 , 1, 1
+    ScrollView:
+        MDBoxLayout:
+            orientation: 'vertical'
+            spacing: dp(10)
+            padding: dp(10)
+            md_bg_color: 1,1 , 1, 1
+            MDBoxLayout:
+                spacing: dp(10)
+                padding: dp(5)
+                md_bg_color: [1.0, 0, 1.0, 1.0]
+                size_hint: 1, None
+                height: self.minimum_height
+                MDLabel:
+                       
+                    text: "Country"
+
+                MDBoxLayout:
+                    size_hint_x: 1
+                    md_bg_color: [1.0, 0, 0, 1.0]
+
+
+          
+                    
+                    MDRectangleFlatIconButton:
+                        icon: "arrow-down-drop-circle-outline"
+                        text: app.selcted 
+                        theme_text_color: "Custom"
+                        text_color: 0, 0, 0, 1
+                        line_color: 0, 0, 0, 1
+                        icon_color: 0, 0, 0, 1
+                        on_release:  app.search_dropdown.open()
+
+                    MDIconButton:
+                        icon: 'plus'
+                        on_release: app.add_country()
+            
+
+   
+            MDRectangleFlatIconButton:
+                icon: "arrow-down-drop-circle-outline"
+                text: "PORT"
+                theme_text_color: "Custom"
+                text_color: 0, 0, 0, 1
+                line_color: 0, 0, 0, 1
+                icon_color: 0, 0, 0, 1
+
+            MDSeparator:
+            MDBoxLayout:
+                orientation: 'vertical'
+                size_hint: 1, 1
+                spacing: dp(10)
+                MDBoxLayout:
+                    size_hint: 1, 1
+                    spacing: dp(10)
+                    MDCard:
+                        size_hint: .5, 1
+                        orientation: 'vertical'
+                        ScrollView:
+                            MDBoxLayout:
+                                orientation: 'vertical'
+                                MDLabel:
+                                    text: "DATA"
+                    MDCard:
+                        size_hint: .5, 1
+                        orientation: 'vertical'
+                        ScrollView:
+                            MDBoxLayout:
+                                orientation: 'vertical'
+                                MDLabel:
+                                    text: "Constituant"
+
+
+
+
 
         
 

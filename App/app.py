@@ -95,9 +95,6 @@ class ConstituantChip(MDChip,MDTooltip):
         super(ConstituantChip, self).__init__(**kwargs)
 
 
-class Add_port(ModalView):
-    pass
-
 class Search_dropdown(ModalView):
     datas = ListProperty([])
     selcted =  StringProperty("")
@@ -273,6 +270,9 @@ class MainApp(MDApp):
     from_date = StringProperty("2023-10-01")  
     tide_data = ObjectProperty(None)
     store = ObjectProperty(JsonStore('data.json'))
+    ModalAdd= ObjectProperty(None)
+    Add_port= ObjectProperty(None)
+
     constituants_description = DictProperty({"M2": 	"Principal lunar semidiurnal constituent",                  
                                     "S2":"Principal solar semidiurnal constituent",
                                     "N2":"Larger lunar elliptic semidiurnal constituent",
@@ -318,6 +318,7 @@ class MainApp(MDApp):
                             "New York" : [],
                             "San Francisco" : [],
                             "San Luis" : {
+                            "data":{},
                             "constituants": {
                                     "M2": [1.61,	296.3,	28.984104],                  
                                     "S2":[0.49,	283.7,	30.0,     ],
@@ -357,9 +358,7 @@ class MainApp(MDApp):
                                     "2SM2":[  0.01,	104.1,	31.015896],
                                     "LAM2":[  0.01,	305.9,	29.455626],},
                             },
-                            
                             }
-                        
                         ,})
     
 
@@ -371,6 +370,7 @@ class MainApp(MDApp):
             exit_manager=self.exit_manager,
             select_path=self.select_path,
         )
+        
 
     def build(self):
         self.screen = Builder.load_file("app.kv")
@@ -399,14 +399,27 @@ class MainApp(MDApp):
         if  self.cache.exists('user'):
             self.ports = self.store.get('ports')
 
-
     def save_data(self):
         Logger.info("App: Saving Data")
         self.store.put('ports',data=self.ports)
 
+    def open_add_country(self):
+        if not self.Add_country:
+            self.Add_country = Factory.Add_country()
+        self.ModalAdd.clear_widgets()
+        self.ModalAdd.add_widget(self.Add_country)
+
+    def open_add_port(self):
+        if not self.Add_port:
+            self.Add_port = Factory.Add_port()
+        self.ModalAdd.clear_widgets()
+        self.ModalAdd.add_widget(self.Add_port)
+
     def on_start(self):
         Logger.info("App: Starting")
-
+        if self.ModalAdd is None:
+            self.ModalAdd = Factory.ModalAdd()
+            self.open_add_port()
         Logger.info("App: Dialog Opened")
         # self.go_model_1()
         if not self.search_dropdown :
@@ -430,7 +443,6 @@ class MainApp(MDApp):
         #         self.search_dropdown.datas = phoneType
         #         self.search_dropdown.set_list_md_icons()
 
-
     def select_country(self,instance,value):
         self.selcted = value
         # self.ids.country.text = value['display_name']
@@ -444,7 +456,6 @@ class MainApp(MDApp):
         self.model_1.country = country
         self.model_1.port = port
         self.screen.add_widget(self.model_1)
-
 
     def go_menu(self):
         Logger.info("App: Menu")
@@ -464,7 +475,6 @@ class MainApp(MDApp):
         self.screen.add_widget(self.portScreen)
         self.portScreen.ids.rv_.update()
         # self.screen.add_widget(Factory.CountryCard())
-
 
     def calculate(self):
         Logger.info("App: Calculate")
@@ -528,11 +538,11 @@ class MainApp(MDApp):
         
         self.calculate()
    
-    '''def show_date_picker(self,sender):
+        '''def show_date_picker(self,sender):
         date_dialog = MDDatePicker(year=1983, month=4, day=12)
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
         date_dialog.open()'''
-    #111
+   
     def show_date_picker(self, sender):
         date_dialog = MDDatePicker(mode="range")
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
