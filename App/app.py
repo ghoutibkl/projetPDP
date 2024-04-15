@@ -11,7 +11,7 @@ from kivymd.uix.card import MDCard
 from kivy.uix.recycleview import RecycleView
 from kivymd.uix.chip import MDChip
 from kivymd.uix.tooltip import MDTooltip
-
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.graphics import Line ,Color
 import numpy as np
 
@@ -251,9 +251,21 @@ class GraphModel_1(MDRelativeLayout):
 
 
 
+class Add_port(MDBoxLayout):
+    selected_port = StringProperty("")
+    selected_country = StringProperty("")
+
+    def init(self):
+        self.app = MDApp.get_running_app()
+        self.selected_country = self.app.search_dropdown.selcted
+        self.selected_port = self.app.search_dropdown.selcted
+
+
+
 
         
-
+    def add_port(self):
+        pass
 
 
 class MainApp(MDApp):
@@ -311,7 +323,6 @@ class MainApp(MDApp):
                                     "2SM2":"Shallow water semidiurnal constituent",
                                     "LAM2":"Smaller lunar evectional constituent",})
     
-
     ports = DictProperty({"France": {},
                         "Etats-Unis": {
                             "Los Angeles" : [],
@@ -361,7 +372,6 @@ class MainApp(MDApp):
                             }
                         ,})
     
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         Window.bind(on_keyboard=self.events)
@@ -371,7 +381,6 @@ class MainApp(MDApp):
             select_path=self.select_path,
         )
         
-
     def build(self):
         self.screen = Builder.load_file("app.kv")
         return self.screen
@@ -585,7 +594,6 @@ class MainApp(MDApp):
         )
         snackbar.open()
         self.predcition2(self.screen.ids.home_screen.ids.graph)
-
 
     def train(self):
         Logger.info("App: Train")

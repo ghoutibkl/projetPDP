@@ -1,3 +1,4 @@
+
 <CountryCard>:
     # text: "Friend"
     
@@ -320,6 +321,7 @@
 
                     MDLabel:
                         text: app.selcted 
+                        
 
 
           
@@ -388,79 +390,171 @@
 
 
                 
-<Add_port@MDBoxLayout>:
+<Add_port>:
     md_bg_color: 1,1 , 1, 1
-    ScrollView:
-        MDBoxLayout:
-            orientation: 'vertical'
+    size_hint: 1, 1
+    MDBoxLayout:
+        orientation: 'vertical'
+        spacing: dp(10)
+        padding: dp(10)
+        md_bg_color: 1,1 , 1, 1
+        
+        MDGridLayout:
+            cols: 3
             spacing: dp(10)
-            padding: dp(10)
-            md_bg_color: 1,1 , 1, 1
-            MDBoxLayout:
-                spacing: dp(10)
-                padding: dp(5)
-                md_bg_color: [1.0, 0, 1.0, 1.0]
-                size_hint: 1, None
-                height: self.minimum_height
-                MDLabel:
-                       
-                    text: "Country"
-
-                MDBoxLayout:
-                    size_hint_x: 1
-                    md_bg_color: [1.0, 0, 0, 1.0]
-
-
-          
-                    
-                    MDRectangleFlatIconButton:
-                        icon: "arrow-down-drop-circle-outline"
-                        text: app.selcted 
-                        theme_text_color: "Custom"
-                        text_color: 0, 0, 0, 1
-                        line_color: 0, 0, 0, 1
-                        icon_color: 0, 0, 0, 1
-                        on_release:  app.search_dropdown.open()
-
-                    MDIconButton:
-                        icon: 'plus'
-                        on_release: app.add_country()
-            
-
-   
-            MDRectangleFlatIconButton:
-                icon: "arrow-down-drop-circle-outline"
-                text: "PORT"
-                theme_text_color: "Custom"
-                text_color: 0, 0, 0, 1
-                line_color: 0, 0, 0, 1
-                icon_color: 0, 0, 0, 1
-
-            MDSeparator:
+            size_hint: 1, None
+            height: dp(30)
             MDBoxLayout:
                 orientation: 'vertical'
-                size_hint: 1, 1
-                spacing: dp(10)
-                MDBoxLayout:
-                    size_hint: 1, 1
-                    spacing: dp(10)
-                    MDCard:
-                        size_hint: .5, 1
-                        orientation: 'vertical'
-                        ScrollView:
-                            MDBoxLayout:
-                                orientation: 'vertical'
-                                MDLabel:
-                                    text: "DATA"
-                    MDCard:
-                        size_hint: .5, 1
-                        orientation: 'vertical'
-                        ScrollView:
-                            MDBoxLayout:
-                                orientation: 'vertical'
-                                MDLabel:
-                                    text: "Constituant"
+                
+                size_hint: .1, None
+                height: dp(30)
+                MDLabel:
+                    text: "Pays"
 
+            MDCard:
+                size_hint: 1, None
+                height: dp(30)
+                on_release:  app.search_dropdown.open()              
+                padding: dp(10),0
+                canvas.before:
+                    Color:
+                        rgba: 0, 0, 0, 1.0
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                    # RoundedRectangle:
+                    #     size: self.size
+                    #     pos: self.pos
+                    #     radius: [25, 0, 0, 0]
+                MDLabel:
+                    text: "Port"
+                    align: 'center'
+                MDIconButton:
+                    icon: 'arrow-down-drop-circle-outline'
+                    pos_hint: {'center_y': 0.5}
+                
+            MDCard:
+                size_hint: None, None
+                width: dp(130)
+                height: dp(30)
+                on_release:  app.search_dropdown.open()              
+                md_bg_color: [0, 1, 0, 1.0]
+                padding: dp(10),0 ,0,0
+                MDLabel:
+                    text: "Nouveau"
+                MDIconButton:
+                    icon: 'plus'
+                    pos_hint: {'center_y': 0.5,}
+                    on_release: app.add_country()
+        MDGridLayout:
+            cols: 3
+            spacing: dp(10)
+            size_hint: 1, None
+            height: dp(30)
+            MDBoxLayout:
+                orientation: 'vertical'
+                
+                size_hint: .1, None
+                height: dp(30)
+                MDLabel:
+                    text: "Port"
+
+            MDCard:
+                size_hint: 1, None
+                height: dp(30)
+                on_release:  app.search_dropdown.open()              
+                padding: dp(10),0
+                canvas.before:
+                    Color:
+                        rgba: 0, 0, 0, 1.0
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                    # RoundedRectangle:
+                    #     size: self.size
+                    #     pos: self.pos
+                    #     radius: [25, 0, 0, 0]
+                MDLabel:
+                    text: "Port"
+                    align: 'center'
+                MDIconButton:
+                    icon: 'arrow-down-drop-circle-outline'
+                    pos_hint: {'center_y': 0.5}
+                
+            MDCard:
+                size_hint: None, None
+                width: dp(130)
+                height: dp(30)
+                on_release:  app.search_dropdown.open()              
+                md_bg_color: [0, 1, 0, 1.0]
+                padding: dp(10),0 ,0,0
+                MDLabel:
+                    text: "Nouveau"
+                MDIconButton:
+                    icon: 'plus'
+                    pos_hint: {'center_y': 0.5,}
+                    on_release: app.add_country()
+
+
+        MDSeparator:
+        MDGridLayout:
+            size_hint: 1, 1
+            spacing: dp(10)
+            cols: 2
+            MDLabel:
+                size_hint: .5, None
+                height: dp(15)
+                text: "Constituant"
+                halign: 'center'
+                
+            MDLabel:
+                size_hint: .5, None
+                height: dp(15)
+                text: "Data"
+                halign: 'center'
+
+
+
+
+            MDBoxLayout:
+                size_hint: .5, 1
+
+                MDCard:
+                    size_hint: 1, 1
+
+                    orientation: 'vertical'
+                    ScrollView:
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            MDLabel:
+                                text: "Constituant"
+            MDBoxLayout:
+                size_hint: .5, 1
+
+                MDCard:
+                    size_hint: 1, 1
+
+                    orientation: 'vertical'
+                    ScrollView:
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            MDLabel:
+                                text: "DATA"
+
+        MDRelativeLayout:
+            size_hint: 1, None
+            height: dp(40)
+
+            MDRectangleFlatIconButton: 
+                text: "Save"
+                icon: "content-save"
+                theme_text_color: "Custom"
+                text_color: 0, 0, 0, 1
+                md_bg_color: 0, 1, 0, 1
+                on_release: app.add_country()
+                pos_hint: {'center_x': 0.5}
+                height: dp(40)
 
 
 
@@ -468,10 +562,12 @@
         
 
 
+
 MDScreen:
     padding: 0
     HomeScreen:
         id: home_screen 
+    
     
 
     # radius: [25, 0, 0, 0]
