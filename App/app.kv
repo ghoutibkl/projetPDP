@@ -321,7 +321,7 @@
 
                     MDLabel:
                         text: app.selcted 
-                        
+
 
 
           
@@ -531,14 +531,43 @@
                                 text: "Constituant"
             MDBoxLayout:
                 size_hint: .5, 1
+                orientation: 'vertical'
+                MDGridLayout:
+                    size_hint: 1, None
+                    height: dp(45)
+                    spacing: dp(10)
+                    cols : 5
+
+                    MDFlatButton:
+                  
+      
+                        text: "NB : 1"
+                        disabled: True
+
+                    MDFlatButton:
+                        line_color: 0, 0, 0, 1
+                        text: "DATA"
+                    
+                    MDFlatButton:
+                        line_color: 0, 0, 0, 1
+                        text: "DATA"
+                    MDFlatButton:
+                        line_color: 0, 0, 0, 1
+                        text: "DATA"
+                    
+                    MDFlatButton:
+                        line_color: 0, 0, 0, 1
+                        text: "DATA"
 
                 MDCard:
                     size_hint: 1, 1
 
                     orientation: 'vertical'
+                    
                     ScrollView:
                         MDBoxLayout:
                             orientation: 'vertical'
+                            padding: dp(5)
                             MDLabel:
                                 text: "DATA"
 
