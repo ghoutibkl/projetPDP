@@ -299,79 +299,103 @@
         MDBoxLayout :
         
             size_hint: 1, .4
- 
             padding: dp(10)
             spacing: dp(10)
+            
             MDBoxLayout:
                 orientation: 'vertical'
                 size_hint: .3, 1
-                spacing: dp(50)
-                #TODO : DROPDOWN PORT
-                MDCard:
-                    padding: "5dp"
+                ScrollView:
+         
+                    do_scroll_x: True
+                    do_scroll_y: False
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                       
+                        spacing: dp(20)
+                        MDCard:
+                            padding: "5dp"
+                            size_hint_x : 1
+                            size_hint_y : None
+                            height: dp(30)
+                            # width: self.minimum_width
+                            # md_bg_color: [1.0, 1.0, 0, 1]
+                            on_release:  app.search_dropdown.open()
+                            elevation: 0
+                            MDLabel:
+                                text: app.selcted 
 
-                    size_hint_x : 1
-                    size_hint_y : None
-                    height: dp(30)
-                    # width: self.minimum_width
-                    # md_bg_color: [1.0, 1.0, 0, 1]
-                    on_release:  app.search_dropdown.open()
-                    elevation: 0
-                 
-
-                    MDLabel:
-                        text: app.selcted 
+                        MDCard:
+                            padding: "5dp"
+                            size_hint_x : 1
+                            size_hint_y : None
+                            height: dp(30)
+                            on_release:  app.search_dropdown.open()
+                            elevation: 0
+                            MDLabel:
+                                text: app.selcted 
 
 
+                        MDRaisedButton:
+                            size_hint_x : 1
+                            text: "add"
+                            theme_text_color: "Custom"
+                            text_color: 1, 1, 1, 1
+                            md_bg_color: 0,.1 , 1, 1
+                            on_release: app.ModalAdd.open()
 
-          
 
-                # FROM 
 
-                # FROM 
-                # MyDatePicker:
-                #     text: 'To'
-
-                MDBoxLayout:
-                    size_hint: 1, 1
-                    # height: self.minimum_height
-                    orientation: 'vertical'
-                    spacing: dp(10)
-
-                    MDRaisedButton:
-                        text: "load"
-                        theme_text_color: "Custom"
-                        text_color: 1, 1, 1, 1
-                        md_bg_color: 0,.1 , 1, 1
-                        on_release: app.file_manager_open()
-                    MDRaisedButton:
-                        text: "add"
-                        theme_text_color: "Custom"
-                        text_color: 1, 1, 1, 1
-                        md_bg_color: 0,.1 , 1, 1
-                        on_release: app.ModalAdd.open()
-
-                    MyDatePicker:
-                        text: 'From'
+                        MyDatePicker:
+                            size_hint: 1, None
+                            height: dp(30)
+                            text: 'From'
+                        MDBoxLayout:
+                            size_hint: 1, 1
+                        MDRaisedButton:
+                            size_hint_x : 1
+                            text: "Entrainer"
+                            theme_text_color: "Custom"
+                            text_color: 1, 1, 1, 1
+                            md_bg_color: 0,.5 , .1, 1
+                            on_release: app.ModalAdd.open()
             MDCard:
                 size_hint: 1, 1
                 # height: self.minimum_height
                 padding: dp(10)
                 # RVConstituant :
 
-            MDBoxLayout:
-                size_hint: None, 1
-                width: self.minimum_width
+            MDGridLayout:
+                size_hint: .2, 1
+                cols: 1
+                spacing: dp(10)
       
-                
                 MDRaisedButton:
-                    text: "calculate"
+                    size_hint_x : 1
+                    text: "Save"
                     theme_text_color: "Custom"
                     text_color: 1, 1, 1, 1
-                    md_bg_color: 0, 1, 0, 1
+                    md_bg_color: 0.71, 0.71, 0.012, 1
+                    pos_hint: {'center_y': 0.5}
+
+                MDRaisedButton:
+                    size_hint_x : 1
+                    text: "Export"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    md_bg_color: 0.71, 0.71, 0.012, 1
+                    pos_hint: {'center_y': 0.5}
+
+                    # on_release: app.predcition(graph)
+
+                MDRaisedButton:
+                    size_hint_x : 1
+                    text: "ScreenShot"
+                    theme_text_color: "Custom"
+                    text_color: 1, 1, 1, 1
+                    md_bg_color: 0.71, 0.71, 0.012, 1
+                    pos_hint: {'center_y': 0.5}
                     on_release: app.predcition(graph)
-
-
 
 <ModalAdd@ModalView>:
     size_hint: .8, .8
