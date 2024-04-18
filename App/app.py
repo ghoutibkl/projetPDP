@@ -27,6 +27,7 @@ from math import sin, cos
 from  kivy.uix.modalview import ModalView
 from kivymd.uix.snackbar import Snackbar
 from kivymd.uix.gridlayout import MDGridLayout
+import json 
 # Données spécifiques pour le Port San Luis, CA (hauteur d'eau moyenne, amplitudes, fréquences, déphasages)
 Z = 0.0  # Hauteur d'eau moyenne
 amplitudes = [0.492, 0.149, 0.113, 0.357, 0.002, 0.223, 0.0, 0.001, 0.001, 0.001]  # Amplitudes des 10 premiers constituants
@@ -207,7 +208,6 @@ class RVConstituant(RecycleView):
     def update(self):
 
         if self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'] :
-
             self.data = [{"constituant_name" : str(name),"amplitude_initial": str(values[0][0]),"amplitude_optimized": str(values[1][0]),"phase_initial": str(values[0][1]),"phase_optimized": str(values[1][1]),"speed_initial": str(values[0][2]),"speed_optimized": str(values[1][2]) } for name , values in self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'].items()]
         else:
             self.data = []
@@ -278,7 +278,7 @@ class GraphModel_1(MDRelativeLayout):
     def update_graph(self, plot):
 
         self.graph.xmax = len(plot)
-        self.graph.x_ticks_major = len(plot) / 10
+        self.graph.x_ticks_major = 1
         self.graph.ymin = int(min(plot)) -1
         self.graph.ymax = int(max(plot)) + 1
 
@@ -412,8 +412,8 @@ class MainApp(MDApp):
                                     "MS4":"Shallow water quarter diurnal constituent",
                                     "2SM2":"Shallow water semidiurnal constituent",
                                     "LAM2":"Smaller lunar evectional constituent",})
-    
-    ports = DictProperty({"France": {},
+        
+    ports_old = DictProperty({
                         "Etats-Unis": {
                             "Los Angeles" : [],
                             "New York" : [],
@@ -461,7 +461,26 @@ class MainApp(MDApp):
                             },
                             }
                         ,})
-    
+    ports = DictProperty({
+                        "Etats-Unis": {
+                            "San Luis" : {
+                            "data":{},
+                            "constituants": {
+
+                                'M2':[[1.8, 190.4, 28.984104],[0.0, 0.0, 0.0]],
+                                'S2':[[0.45, 196.3, 30.0],[0.0, 0.0, 0.0]],
+                                'N2':[[0.4, 164.1, 28.43973],[0.0, 0.0, 0.0]],
+                                'K1':[[1.26, 219.9, 15.041069],[0.0, 0.0, 0.0]],
+                                'O1':[[0.77, 204.1, 13.943035],[0.0, 0.0, 0.0]],
+                                'P1':[[0.39, 215.0, 14.958931],[0.0, 0.0, 0.0]],
+                                'M4':[[0.0, 259.1, 57.96821],[0.0, 0.0, 0.0]],
+                            },
+                            },
+                            }
+                        ,})
+   
+
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         Window.bind(on_keyboard=self.events)
@@ -549,6 +568,10 @@ class MainApp(MDApp):
 
             # print("selected",self.search_dropdown.selcted)
 
+
+        countrys = list(self.ports.keys())
+        country = countrys[0] if len(countrys) else "null"
+        self.select_port("country",country)
         # if   self.search_dropdown.datas == [] :
         #     phoneType = self.get_PhoneNumberType()
         #     if phoneType :
@@ -700,7 +723,7 @@ class MainApp(MDApp):
         snackbar.open()
         # data = self.tide_data.T.to_dict('list')
         print(self.tide_data['Verified (m)'].values)
-        d
+        
         # self.ports[self.Add_port.selected_country][self.Add_port.selected_port]['data'] = [ [a ,b ,c] for zip(self.tide_data['Verified (m)'].values) ]
         # self.Add_port.ids.rv_data.update()
         # # print(self.tide_data.head())
@@ -726,6 +749,13 @@ class MainApp(MDApp):
         print("prediction",graph)
         # Define the constituents
 
+        if not self.ports[self.Add_port.selected_country] or not self.ports[self.Add_port.selected_country][self.Add_port.selected_port] or not self.ports[self.Add_port.selected_country][self.Add_port.selected_port]['constituants'] :
+            Snackbar(
+                text="No data",
+                snackbar_x="10dp",
+                snackbar_y="10dp",
+            ).open()
+            return
 
 
         if self.tide_data is not None:
@@ -772,6 +802,7 @@ class MainApp(MDApp):
         
         noaa_data = noaa_data.loc[self.from_date:self.from_date]
         print(noaa_data)
+
         
         # noaa_data['Datetime'] = pd.to_datetime(noaa_data['Date'] + ' ' + noaa_data['Time (GMT)'])
         noaa_timestamps = noaa_data['Datetime'].apply(lambda x: x.timestamp()).values
@@ -795,6 +826,8 @@ class MainApp(MDApp):
         for plot in graph.graph.plots:
             graph.graph.remove_plot(plot)
 
+
+
         predicted_initial_plot = MeshLinePlot(color=[0, 0, 1, 1])
         predicted_initial_plot.points = [(i,( p)) for i,p in enumerate(predicted_initial)]
 
@@ -814,15 +847,17 @@ class MainApp(MDApp):
 
         print("prediction",graph)
         # Define the constituents
-        constituents = [
-            ('M2', 1.8, 190.4, 28.984104),
-            ('S2', 0.45, 196.3, 30.0),
-            ('N2', 0.4, 164.1, 28.43973),
-            ('K1', 1.26, 219.9, 15.041069),
-            ('O1', 0.77, 204.1, 13.943035),
-            ('P1', 0.39, 215.0, 14.958931),
-            ('M4', 0.0, 259.1, 57.96821)
-        ]
+        constituents = [ (n,values[0][0],values[0][1],values[0][2]) for n,values in self.ports[self.selected_country][self.selected_port]['constituants'].items()]
+        constutuant_names = [n for n,values in self.ports[self.selected_country][self.selected_port]['constituants'].items()]
+        # [
+        #     ('M2', 1.8, 190.4, 28.984104),
+        #     ('S2', 0.45, 196.3, 30.0),
+        #     ('N2', 0.4, 164.1, 28.43973),
+        #     ('K1', 1.26, 219.9, 15.041069),
+        #     ('O1', 0.77, 204.1, 13.943035),
+        #     ('P1', 0.39, 215.0, 14.958931),
+        #     ('M4', 0.0, 259.1, 57.96821)
+        # ]
 
         # Load the tide data from CSV
         csv_file_path = '0101-3112-2023(m).csv'
@@ -908,6 +943,11 @@ class MainApp(MDApp):
         predicted_initial = predict_tide(times_since_epoch, amplitudes, phases, speeds)
         predicted_optimized = predict_tide(times_since_epoch, optimized_amplitudes, optimized_phases, speeds)
 
+    
+
+        for   c,a,p,s  in zip(constutuant_names,optimized_amplitudes, optimized_phases, speeds):
+
+            self.ports[self.selected_country][self.selected_port]['constituants'][c][1] = [a,p,s]
         def calculate_rmse(observed, predicted):
             return np.sqrt(mean_squared_error(observed, predicted))
 
@@ -1063,15 +1103,33 @@ class MainApp(MDApp):
             ports = list(self.ports[self.selected_country])
             self.selected_port = ports[0] if len(ports) else ""
 
+
         elif search_mode == "port":
 
             self.selected_port = value
 
+        self.predcition(self.screen.ids.home_screen.ids.graph)
     def change_country(self, country):
         self.selected_country = country
         ports = list(self.ports[self.selected_country])
         self.selected_port = ports[0] if len(ports) else ""
 
+
+    def screen_shoot(self):
+        self.screen.ids.home_screen.ids.graph.export_to_png("screenshot.png")
+        Snackbar(text="Screenshot saved").open()
+    
+    def export_data(self):
+        with open("sample.json", "w") as outfile: 
+            json.dump(self.ports, outfile)
+            
+    def save_data(self):
+        "use json to save data ports"
+        pass
+
+    def save_model(self):
+        "use pickle to save model"
+        pass
 
 MainApp().run()
 

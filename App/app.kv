@@ -382,17 +382,18 @@
                     text_color: 1, 1, 1, 1
                     md_bg_color: 0.71, 0.71, 0.012, 1
                     pos_hint: {'center_y': 0.5}
+                    on_release: app.export_data()
 
                     # on_release: app.predcition(graph)
 
                 MDRaisedButton:
                     size_hint_x : 1
-                    text: "ScreenShot"
+                    text: "ScreenShoot"
                     theme_text_color: "Custom"
                     text_color: 1, 1, 1, 1
                     md_bg_color: 0.71, 0.71, 0.012, 1
                     pos_hint: {'center_y': 0.5}
-                    on_release: app.predcition(graph)
+                    on_release: app.screen_shoot()
 
 <ModalAdd@ModalView>:
     size_hint: .8, .8
