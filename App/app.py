@@ -26,6 +26,7 @@ from kivy_garden.graph import Graph, MeshLinePlot
 from math import sin, cos
 from  kivy.uix.modalview import ModalView
 from kivymd.uix.snackbar import Snackbar
+from kivymd.uix.gridlayout import MDGridLayout
 # Données spécifiques pour le Port San Luis, CA (hauteur d'eau moyenne, amplitudes, fréquences, déphasages)
 Z = 0.0  # Hauteur d'eau moyenne
 amplitudes = [0.492, 0.149, 0.113, 0.357, 0.002, 0.223, 0.0, 0.001, 0.001, 0.001]  # Amplitudes des 10 premiers constituants
@@ -40,8 +41,8 @@ from kivy.core.window import Window
 import os
 # os.path.dirname(os.path.abspath(__file__))
 from kivy.storage.jsonstore import JsonStore
-
-
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.button import MDFlatButton
 
 class CountryCard(MDCard):
 
@@ -98,6 +99,8 @@ class ConstituantChip(MDChip,MDTooltip):
 class Search_dropdown(ModalView):
     datas = ListProperty([])
     selcted =  StringProperty("")
+    search_mode = StringProperty("country")
+    instance = StringProperty("home_screen")
 
     def __init__(self, **kwargs):
         super(Search_dropdown, self).__init__(**kwargs)
@@ -107,8 +110,22 @@ class Search_dropdown(ModalView):
     def set_list_md_icons(self , text="", search=False):
 
         '''Builds a list of icons for the screen MDIcons.'''
-    
-        self.datas =  self.app.ports['Etats-Unis']
+        if self.search_mode == "country":
+            self.datas =  list(self.app.ports.keys())
+        else:
+            
+
+            if self.instance=="home_screen" and self.app.selected_country:
+                self.datas = list(self.app.ports[self.app.selected_country])
+
+
+            elif self.instance=="add_port" and self.app.Add_port.selected_country:
+                self.datas = list(self.app.ports[self.app.Add_port.selected_country])
+
+            else:
+                self.datas = []
+
+        
 
         def add_icon_item(country_type):
             self.ids.rv.data.append(
@@ -131,8 +148,23 @@ class Search_dropdown(ModalView):
                 add_icon_item(data)
 
     def select_country(self,value):
+
+        if self.instance == "home_screen":
+            self.app.select_port(self.search_mode,value)
+        
+        elif self.instance == "add_port":
+            self.app.Add_port.select_port(self.search_mode,value)
+
         self.selcted = value
         self.dismiss()
+
+    def Oopen(self,search_mode,instance="home_screen"):
+        self.search_mode = search_mode
+        self.instance = instance
+        self.open()
+        self.set_list_md_icons()
+ 
+        
 
 
 class RVPort(RecycleView):
@@ -167,31 +199,36 @@ class RVConstituant(RecycleView):
     def __init__(self, **kwargs):
         super(RVConstituant, self).__init__(**kwargs)
         self.app = MDApp.get_running_app()
-        constitauns = self.app.ports['Etats-Unis']['San Luis']
 
-        self.data = [{'text': str(c) ,'tooltip_text':str(v[3])  } for c , v in constitauns.items()]
+
+
+        self.data = []
 
     def update(self):
-        if  not self.country :
-            return
-        # ports = self.app.ports[self.country]
-        constitauns = self.app.ports['Etats-Unis']['San Luis']
+
+        if self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'] :
+
+            self.data = [{"constituant_name" : str(name),"amplitude_initial": str(values[0][0]),"amplitude_optimized": str(values[1][0]),"phase_initial": str(values[0][1]),"phase_optimized": str(values[1][1]),"speed_initial": str(values[0][2]),"speed_optimized": str(values[1][2]) } for name , values in self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'].items()]
+        else:
+            self.data = []
+class RVData(RecycleView):
+    country = StringProperty("")
+    # text2 = StringProperty("")
+    def __init__(self, **kwargs):
+        super(RVData, self).__init__(**kwargs)
+        self.app = MDApp.get_running_app()
 
 
-        self.data = [{'text': str(c) ,'tooltip_text':str(v[3])  } for c , v in constitauns.items()]
 
-    # def search(self , text="",):
-    #     if  not self.country :
-    #         return
-        
-    #     self.data = []
-    #     results = []
-    #     ports = self.app.ports[self.country]
-    #     for c in ports:
-    #         if text.lower() in c.lower():
-    #             results.append(c)
- 
-    #     self.data = [{'country':self.country,'text': str(country)  } for country in results]
+        self.data = []
+
+    def update(self):
+
+        if self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['data'] :
+
+            self.data = [{"date" : str(date),"time": str(values[0]),"predicted": str(values[1]),"verified": str(values[2])} for date , values in self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'].items()]
+        else:
+            self.data = []
 
 
 
@@ -214,8 +251,8 @@ class GraphModel_1(MDRelativeLayout):
         gap = self.width / len(self.prediction)
 
         self.plot = MeshLinePlot(color=[1, 0, 0, 1])
-        # self.plot.points = [(i, self.height /2 + ( p)) for i,p in enumerate(self.prediction)]
 
+        # self.plot.points = [(i, self.height /2 + ( p)) for i,p in enumerate(self.prediction)]
         # self.plot2 = MeshLinePlot(color=[0, 0, 0, 1])
         # self.plot2.points = [(x, cos(x / 10.)) for x in range(0, 101)]
 
@@ -232,11 +269,8 @@ class GraphModel_1(MDRelativeLayout):
         self.graph.size = (self.width, self.height)
 
         # if self.prediction:
-        
         #     # self.plot.points = [(x, sin(x / 10.)) for x in range(0, 101)]
-
         #     # print(self.prediction)
-            
         #     self.plot.points = [(i,  p) for i,p in enumerate(self.prediction)]
 
  
@@ -257,15 +291,66 @@ class Add_port(MDBoxLayout):
 
     def init(self):
         self.app = MDApp.get_running_app()
-        self.selected_country = self.app.search_dropdown.selcted
-        self.selected_port = self.app.search_dropdown.selcted
+        countrys = list(self.app.ports.keys())
+
+        self.selected_country = countrys[0] if len(countrys) else ""
 
 
 
+        if self.selected_country:
+            ports = list(self.app.ports[self.selected_country])
+            print(self.selected_country,"ports",ports)
+            self.selected_port = ports[0] if len(ports) else ""
+        else:
+            self.selected_port = ""
 
+    def select_port(self, search_mode, value):
+        if search_mode == "country":
+            self.selected_country = value
+            ports = list(self.app.ports[self.selected_country])
+            self.selected_port = ports[0] if len(ports) else ""
         
-    def add_port(self):
-        pass
+
+        elif search_mode == "port":
+            self.selected_port = value
+            # if self.app.ports[self.selected_country][self.selected_port]['constituants']:
+                # self.load_constituant()
+            self.ids.rv_constituant.update()
+            self.ids.rv_data.update()
+
+
+class Add_country_dialog(MDBoxLayout):
+    pass
+class Add_port_dialog(MDBoxLayout):
+    pass
+
+
+class Constituant_MDGridLayout(MDGridLayout):
+
+
+
+
+    constituant_name = StringProperty("")
+    amplitude_initial= StringProperty("")
+    amplitude_optimized= StringProperty("")
+    phase_initial= StringProperty("")
+    phase_optimized= StringProperty("")
+    speed_initial= StringProperty("")
+    speed_optimized= StringProperty("")
+    
+    def __init__(self,**kwargs):
+        super(Constituant_MDGridLayout, self).__init__(**kwargs)
+class Data_MDGridLayout(MDGridLayout):
+
+
+
+
+    date = StringProperty("")
+    time= StringProperty("")
+    predicted= StringProperty("")
+    verified= StringProperty("")
+    def __init__(self,**kwargs):
+        super(Data_MDGridLayout, self).__init__(**kwargs)
 
 
 class MainApp(MDApp):
@@ -278,12 +363,17 @@ class MainApp(MDApp):
     filterCOnstituant = ListProperty([])
     search_dropdown = ObjectProperty(None,allownone=True)
     selcted =StringProperty("")   
+    selected_port = StringProperty("")
+    selected_country = StringProperty("")
     date_mode= StringProperty("from") 
     from_date = StringProperty("2023-10-01")  
     tide_data = ObjectProperty(None)
     store = ObjectProperty(JsonStore('data.json'))
     ModalAdd= ObjectProperty(None)
     Add_port= ObjectProperty(None)
+    dialog_port = None
+    dialog_country = None
+
 
     constituants_description = DictProperty({"M2": 	"Principal lunar semidiurnal constituent",                  
                                     "S2":"Principal solar semidiurnal constituent",
@@ -330,7 +420,7 @@ class MainApp(MDApp):
                             "San Francisco" : [],
                             "San Luis" : {
                             "data":{},
-                            "constituants": {
+                            "constituantsd": {
                                     "M2": [1.61,	296.3,	28.984104],                  
                                     "S2":[0.49,	283.7,	30.0,     ],
                                     "N2":[0.37,	276.0,	28.43973],
@@ -419,30 +509,45 @@ class MainApp(MDApp):
         self.ModalAdd.add_widget(self.Add_country)
 
     def open_add_port(self):
-        if not self.Add_port:
-            self.Add_port = Factory.Add_port()
-        self.ModalAdd.clear_widgets()
-        self.ModalAdd.add_widget(self.Add_port)
+        self.Add_port.init()
+        self.ModalAdd.open()
+
+
 
     def on_start(self):
         Logger.info("App: Starting")
         if self.ModalAdd is None:
             self.ModalAdd = Factory.ModalAdd()
-            self.open_add_port()
+            if not self.Add_port:
+                self.Add_port = Factory.Add_port()
+
+            self.ModalAdd.add_widget(self.Add_port)
         Logger.info("App: Dialog Opened")
         # self.go_model_1()
         if not self.search_dropdown :
             self.search_dropdown = Search_dropdown(size_hint=(.75,.75))
-            self.search_dropdown.bind(selcted=self.select_country)
+            # self.search_dropdown.bind(selcted=self.select_country)
+            countrys = list(self.ports.keys())
 
-            ports= list(self.ports['Etats-Unis'].keys())
-            self.selcted =  ports[0] if len(ports) else ""
+            self.selected_country = "null" if not len(countrys) else countrys[0]
+        
+            if self.selected_country == "null":
+                ports = list(self.ports[self.selected_country])
+                self.selected_port = ports[0] if len(ports) else "null"
+             
 
-    
-            self.search_dropdown.set_list_md_icons()
-            self.search_dropdown.selcted = ports[0] if len(ports) else ""
 
-            print("selected",self.search_dropdown.selcted)
+
+                # ports= list(self.ports['Etats-Unis'].keys())
+                # self.selcted =  ports[0] if len(ports) else ""
+
+            else :
+                self.selected_port = "null"
+   
+            # self.search_dropdown.set_list_md_icons()
+            # self.search_dropdown.selcted = ports[0] if len(ports) else ""
+
+            # print("selected",self.search_dropdown.selcted)
 
         # if   self.search_dropdown.datas == [] :
         #     phoneType = self.get_PhoneNumberType()
@@ -593,8 +698,16 @@ class MainApp(MDApp):
             snackbar_y="10dp",
         )
         snackbar.open()
-        self.predcition2(self.screen.ids.home_screen.ids.graph)
+        # data = self.tide_data.T.to_dict('list')
+        print(self.tide_data['Verified (m)'].values)
+        d
+        # self.ports[self.Add_port.selected_country][self.Add_port.selected_port]['data'] = [ [a ,b ,c] for zip(self.tide_data['Verified (m)'].values) ]
+        # self.Add_port.ids.rv_data.update()
+        # # print(self.tide_data.head())
 
+        # # self.Add_port.load_data()
+        # # self.predcition2(self.screen.ids.home_screen.ids.graph)
+        # self.Add_port.ids.rv_data.update()
     def train(self):
         Logger.info("App: Train")
         
@@ -868,7 +981,97 @@ class MainApp(MDApp):
     
         return True
     
+
+    def show_add_country_dialog(self):
+        if not self.dialog_country:
+            self.dialog_country = MDDialog(
+                title="Nouveau:",
+                type="custom",
+                content_cls=Add_country_dialog(),
+                buttons=[
+                    MDFlatButton(
+                        text="CANCEL", text_color=self.theme_cls.primary_color , on_release=self.dismiss_dialog_country
+                    ),
+                    MDFlatButton(
+                        text="Save", text_color=self.theme_cls.primary_color ,on_release=self.new_country,
+                    ),
+                ],
+            )
+        self.dialog_country.open()
+
+    def show_add_port_dialog(self):
+        if not self.dialog_port:
+            self.dialog_port = MDDialog(
+                title="Nouveau:",
+                type="custom",
+                content_cls=Add_port_dialog(),
+                buttons=[
+                    MDFlatButton(
+                        text="CANCEL", text_color=self.theme_cls.primary_color , on_release=self.dismiss_dialog_port
+                    ),
+                    MDFlatButton(
+                        text="OK", text_color=self.theme_cls.primary_color , on_release= self.new_port ,
+
+                    ),
+                ],
+            )
+        self.dialog_port.open()
+
+    def dismiss_dialog_port(self, *args):
+        self.dialog_port.dismiss()
+
+    def dismiss_dialog_country(self, *args):
+        self.dialog_country.dismiss()
+
+    def new_country(self, *args):
+        print("new_country")
+        country = self.dialog_country.content_cls.ids.country.text
+
+        lowered_country = [c.lower() for c in self.ports]
+
+        if not country or country.lower() in lowered_country:
+            Snackbar(text="Country already exists").open()
+            return
+        self.ports[country] = {}
+
+
+        self.Add_port.select_port( "country", country)
+        self.dialog_country.dismiss()
+        
+
+    def new_port(self, *args):
+        print("new_port")
+        print(self.dialog_port.content_cls.ids.port.text)
+        port = self.dialog_port.content_cls.ids.port.text
+        
+        lowered_ports = [c.lower() for c in self.ports[self.Add_port.selected_country]]
+
+        if not port or port in lowered_ports :
+            Snackbar(text="Port already exists").open()
+            return
+        self.ports[self.Add_port.selected_country][port] = {
+            "data": {},
+            "constituants": {constituant: [[0, 0, 0],[0, 0, 0]] for constituant in self.constituants_description},
+            "prediction": []
+        }
+        self.Add_port.select_port("port",port)
+        self.dialog_port.dismiss()
     
+    def select_port(self, search_mode, value):
+        if search_mode == "country":
+            self.selected_country = value
+            ports = list(self.ports[self.selected_country])
+            self.selected_port = ports[0] if len(ports) else ""
+
+        elif search_mode == "port":
+
+            self.selected_port = value
+
+    def change_country(self, country):
+        self.selected_country = country
+        ports = list(self.ports[self.selected_country])
+        self.selected_port = ports[0] if len(ports) else ""
+
 
 MainApp().run()
 

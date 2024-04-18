@@ -165,16 +165,16 @@
 
 
 
-<RVConstituant>:
-    viewclass: 'ConstituantChip'
-    RecycleGridLayout:
-        default_size: None, dp(30)
-        default_size_hint: 1, None
-        size_hint_y: None
-        height: self.minimum_height
-        # orientation: 'vertical'
-        spacing: dp(10)
-        cols: 7
+# <RVConstituant>:
+#     viewclass: 'ConstituantChip'
+#     RecycleGridLayout:
+#         default_size: None, dp(30)
+#         default_size_hint: 1, None
+#         size_hint_y: None
+#         height: self.minimum_height
+#         # orientation: 'vertical'
+#         spacing: dp(10)
+#         cols: 7
 
 <Model_1@MDBoxLayout>:
     orientation: 'vertical'
@@ -247,10 +247,7 @@
             size_hint: 1, None
             height: self.minimum_height
   
-
             # mb_bg_color: [1.0, 0, 1.0, 1.0]
-
-
 
             MDIconButton:
                 # size_hint: None, None
@@ -320,29 +317,29 @@
                             height: dp(30)
                             # width: self.minimum_width
                             # md_bg_color: [1.0, 1.0, 0, 1]
-                            on_release:  app.search_dropdown.open()
+                            on_release:  app.search_dropdown.Oopen("country")
                             elevation: 0
                             MDLabel:
-                                text: app.selcted 
+                                text: app.selected_country 
 
                         MDCard:
                             padding: "5dp"
                             size_hint_x : 1
                             size_hint_y : None
                             height: dp(30)
-                            on_release:  app.search_dropdown.open()
+                            on_release:  app.search_dropdown.Oopen("port")
                             elevation: 0
                             MDLabel:
-                                text: app.selcted 
+                                text: app.selected_port 
 
 
                         MDRaisedButton:
                             size_hint_x : 1
-                            text: "add"
+                            text: "Nouveau"
                             theme_text_color: "Custom"
                             text_color: 1, 1, 1, 1
                             md_bg_color: 0,.1 , 1, 1
-                            on_release: app.ModalAdd.open()
+                            on_release: app.open_add_port()
 
 
 
@@ -358,7 +355,7 @@
                             theme_text_color: "Custom"
                             text_color: 1, 1, 1, 1
                             md_bg_color: 0,.5 , .1, 1
-                            on_release: app.ModalAdd.open()
+                            on_release: app.open_add_port()
             MDCard:
                 size_hint: 1, 1
                 # height: self.minimum_height
@@ -400,20 +397,183 @@
 <ModalAdd@ModalView>:
     size_hint: .8, .8
     md_bg_color: 1,1 , 1, 1
-<Add_country@MDBoxLayout>:
-    size_hint: 1, 1
-    orientation: 'vertical'
-    spacing: dp(10)
-    md_bg_color: 1,1 , 1, 1
+# <Add_country@MDBoxLayout>:
+#     size_hint: 1, 1
+#     orientation: 'vertical'
+#     spacing: dp(10)
+#     md_bg_color: 1,1 , 1, 1
+
+#     MDTextField:
+#         hint_text: "No helper text"
+#         mode: "rectangle"
+
+<Add_country_dialog>:
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "120dp"
 
     MDTextField:
-        hint_text: "No helper text"
-        mode: "rectangle"
+        id: country
+        hint_text: "Pays"
 
-        
+
+<Add_port_dialog>:
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "120dp"
+
+    MDTextField:
+        id: port
+        hint_text: "Port"
+
+
+
+
+
+
+
+ 
+
+
+
+<Constituant_MDGridLayout>:
+    size_hint: 1, None
+    height: dp(30)
+    spacing: dp(10)
+    cols : 7
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint: .166, None
+        height: dp(10)
+        MDLabel:
+            id: constituant
+            text: root.constituant_name
+            font_style: "Caption"
+            halign: 'center'
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint: .166, None
+        height: dp(10)
+        MDLabel:
+         
+            text: root.amplitude_initial
+            font_style: "Caption"
+            halign: 'center'
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint: .166, None
+        height: dp(10)
+        MDLabel:
+           
+            text: root.phase_initial
+            font_style: "Caption"
+            halign: 'center'
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint: .166, None
+        height: dp(10)
+        MDLabel:
+            
+            text: root.speed_initial
+            font_style: "Caption"
+            halign: 'center'
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint: .166, None
+        height: dp(10)
+        MDLabel:
+            
+            text: root.amplitude_optimized
+            font_style: "Caption"
+            halign: 'center'
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint: .166, None
+        height: dp(10)
+        MDLabel:
+         
+            text: root.phase_optimized
+            font_style: "Caption"
+            halign: 'center'
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint: .166, None
+        height: dp(10)
+        MDLabel:
+            text: root.speed_optimized
+            font_style: "Caption"
+            halign: 'center'
+<Data_MDGridLayout>:
+    size_hint: 1, None
+    height: dp(30)
+    spacing: dp(10)
+    cols : 4
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint: .166, None
+        height: dp(10)
+        MDLabel:
+         
+            text: root.date
+            font_style: "Caption"
+            halign: 'center'
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint: .166, None
+        height: dp(10)
+        MDLabel:
+         
+            text: root.time
+            font_style: "Caption"
+            halign: 'center'
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint: .166, None
+        height: dp(10)
+        MDLabel:
+           
+            text: root.predicted
+            font_style: "Caption"
+            halign: 'center'
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint: .166, None
+        height: dp(10)
+        MDLabel:
+            
+            text: root.verified
+            font_style: "Caption"
+            halign: 'center'
+
+
+
+<RVConstituant>:
+    viewclass: 'Constituant_MDGridLayout'
+    RecycleBoxLayout:
+        default_size: None, dp(30)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+        spacing: dp(10)
+    
+<RVData>:
+    viewclass: 'Data_MDGridLayout'
+    RecycleBoxLayout:
+        default_size: None, dp(30)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+        spacing: dp(10)
+    
+
 
 
                 
+
 <Add_port>:
     md_bg_color: 1,1 , 1, 1
     size_hint: 1, 1
@@ -439,7 +599,7 @@
             MDCard:
                 size_hint: 1, None
                 height: dp(30)
-                on_release:  app.search_dropdown.open()              
+                on_release:  app.search_dropdown.Oopen("country","add_port")     
                 padding: dp(10),0
                 canvas.before:
                     Color:
@@ -452,7 +612,7 @@
                     #     pos: self.pos
                     #     radius: [25, 0, 0, 0]
                 MDLabel:
-                    text: "Port"
+                    text: root.selected_country
                     align: 'center'
                 MDIconButton:
                     icon: 'arrow-down-drop-circle-outline'
@@ -462,15 +622,15 @@
                 size_hint: None, None
                 width: dp(130)
                 height: dp(30)
-                on_release:  app.search_dropdown.open()              
-                md_bg_color: [0, 1, 0, 1.0]
+                on_release:  app.show_add_country_dialog()              
+                md_bg_color: 0,.5 , .1, 1
                 padding: dp(10),0 ,0,0
                 MDLabel:
                     text: "Nouveau"
                 MDIconButton:
                     icon: 'plus'
                     pos_hint: {'center_y': 0.5,}
-                    on_release: app.add_country()
+                    on_release: app.show_add_country_dialog()
         MDGridLayout:
             cols: 3
             spacing: dp(10)
@@ -487,8 +647,9 @@
             MDCard:
                 size_hint: 1, None
                 height: dp(30)
-                on_release:  app.search_dropdown.open()              
+                on_release:  app.search_dropdown.Oopen("port","add_port")         
                 padding: dp(10),0
+                
                 canvas.before:
                     Color:
                         rgba: 0, 0, 0, 1.0
@@ -500,7 +661,7 @@
                     #     pos: self.pos
                     #     radius: [25, 0, 0, 0]
                 MDLabel:
-                    text: "Port"
+                    text: root.selected_port
                     align: 'center'
                 MDIconButton:
                     icon: 'arrow-down-drop-circle-outline'
@@ -510,18 +671,20 @@
                 size_hint: None, None
                 width: dp(130)
                 height: dp(30)
-                on_release:  app.search_dropdown.open()              
-                md_bg_color: [0, 1, 0, 1.0]
+                on_release:  app.show_add_port_dialog()              
+                md_bg_color: 0,.5 , .1, 1
                 padding: dp(10),0 ,0,0
                 MDLabel:
                     text: "Nouveau"
+                    
                 MDIconButton:
                     icon: 'plus'
                     pos_hint: {'center_y': 0.5,}
-                    on_release: app.add_country()
+                    on_release: app.show_add_port_dialog()
 
 
         MDSeparator:
+            
         MDGridLayout:
             size_hint: 1, 1
             spacing: dp(10)
@@ -546,13 +709,110 @@
 
                 MDCard:
                     size_hint: 1, 1
+                    padding: dp(10)
+
 
                     orientation: 'vertical'
-                    ScrollView:
+                    MDGridLayout:
+                        size_hint: 1, None
+                        height: dp(10)
+                        # spacing: dp(10)
+                        padding: 0 , 0 ,dp(5) , 0
+                        cols : 3
                         MDBoxLayout:
                             orientation: 'vertical'
+                            size_hint: .1, None
+                            height: dp(10)
                             MDLabel:
-                                text: "Constituant"
+                                text: "-"
+                                font_style: "Caption"
+                                halign: 'center'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            size_hint: .45, None
+                            height: dp(10)
+                            MDLabel:
+                                text: "initial"
+                                font_style: "Caption"
+                                halign: 'center'
+                          
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            size_hint: .45, None
+                            height: dp(10)
+                            MDLabel:
+                                text: "Optimized"
+                                font_style: "Caption"
+                                halign: 'center'
+                          
+                    MDSeparator:
+
+                    MDGridLayout:
+                        size_hint: 1, None
+                        height: dp(30)
+                        spacing: dp(10)
+                        cols : 7
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            size_hint: .166, None
+                            height: dp(10)
+                            MDLabel:
+                                text: "constituant"
+                                font_style: "Caption"
+                                halign: 'center'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            size_hint: .166, None
+                            height: dp(10)
+                            MDLabel:
+                                text: "Amplitude"
+                                font_style: "Caption"
+                                halign: 'center'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            size_hint: .166, None
+                            height: dp(10)
+                            MDLabel:
+                                text: "Phase"
+                                font_style: "Caption"
+                                halign: 'center'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            size_hint: .166, None
+                            height: dp(10)
+                            MDLabel:
+                                text: "Speed"
+                                font_style: "Caption"
+                                halign: 'center'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            size_hint: .166, None
+                            height: dp(10)
+                            MDLabel:
+                                text: "Amplitude"
+                                font_style: "Caption"
+                                halign: 'center'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            size_hint: .166, None
+                            height: dp(10)
+                            MDLabel:
+                                text: "Phase"
+                                font_style: "Caption"
+                                halign: 'center'
+                        MDBoxLayout:
+                            orientation: 'vertical'
+                            size_hint: .166, None
+                            height: dp(10)
+                            MDLabel:
+                                text: "Speed"
+                                font_style: "Caption"
+                                halign: 'center'
+
+                    RVConstituant:
+                        id : rv_constituant
+
+
             MDBoxLayout:
                 size_hint: .5, 1
                 orientation: 'vertical'
@@ -583,32 +843,52 @@
                         line_color: 0, 0, 0, 1
                         text: "DATA"
 
-                MDCard:
-                    size_hint: 1, 1
+                RVData:
+                    id : rv_data
 
-                    orientation: 'vertical'
-                    
-                    ScrollView:
-                        MDBoxLayout:
-                            orientation: 'vertical'
-                            padding: dp(5)
-                            MDLabel:
-                                text: "DATA"
-
-        MDRelativeLayout:
+        MDGridLayout:
             size_hint: 1, None
             height: dp(40)
+            cols: 3
 
-            MDRectangleFlatIconButton: 
-                text: "Save"
-                icon: "content-save"
-                theme_text_color: "Custom"
-                text_color: 0, 0, 0, 1
-                md_bg_color: 0, 1, 0, 1
-                on_release: app.add_country()
-                pos_hint: {'center_x': 0.5}
-                height: dp(40)
+            MDBoxLayout:
+                size_hint: .333, 1
 
+                MDRectangleFlatIconButton: 
+                    text: "Load constituant" 
+                    icon: "content-save"
+                    theme_text_color: "Custom"
+                    text_color: 0, 0, 0, 1
+                    md_bg_color: 0, 1, 0, 1
+                    on_release: app.add_country()
+                    pos_hint: {'center_x': 0.5}
+                    height: dp(40)
+            MDBoxLayout:
+                size_hint: .333, 1
+
+                MDRectangleFlatIconButton: 
+                    text: "Save"
+                    icon: "content-save"
+                    theme_text_color: "Custom"
+                    text_color: 0, 0, 0, 1
+                    md_bg_color: 0, 1, 0, 1
+                    on_release: app.add_country()
+                    pos_hint: {'center_x': 0.5}
+                    height: dp(40)
+
+            MDBoxLayout:
+                size_hint: .333, 1
+
+                MDRectangleFlatIconButton: 
+                    text: "Load Data"
+                    icon: "content-save"
+                    theme_text_color: "Custom"
+                    text_color: 0, 0, 0, 1
+                    md_bg_color: 0, 1, 0, 1
+                    pos_hint: {'center_y': 0.5}
+                    height: dp(40)
+
+                    on_release: app.file_manager_open()
 
 
 
