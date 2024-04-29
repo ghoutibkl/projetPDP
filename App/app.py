@@ -45,6 +45,9 @@ from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
 
+#import clock from kivy
+from kivy.clock import Clock
+
 class CountryCard(MDCard):
 
     index = None
@@ -200,15 +203,12 @@ class RVConstituant(RecycleView):
     def __init__(self, **kwargs):
         super(RVConstituant, self).__init__(**kwargs)
         self.app = MDApp.get_running_app()
-
-
-
         self.data = []
 
     def update(self):
 
         if self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'] :
-            self.data = [{"constituant_name" : str(name),"amplitude_initial": str(values[0][0]),"amplitude_optimized": str(values[1][0]),"phase_initial": str(values[0][1]),"phase_optimized": str(values[1][1]),"speed_initial": str(values[0][2]),"speed_optimized": str(values[1][2]) } for name , values in self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'].items()]
+            self.data = [{"constituant_name" : str(name),"amplitude_optimized": str(round(values[0],5)),"phase_optimized": str(round(values[1],5)),"speed_optimized": str(round(values[2],5)) } for name , values in self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'].items()]
         else:
             self.data = []
 class RVData(RecycleView):
@@ -226,7 +226,7 @@ class RVData(RecycleView):
 
         if self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['data'] :
 
-            self.data = [{"date" : str(date),"time": str(values[0]),"predicted": str(values[1]),"verified": str(values[2])} for date , values in self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'].items()]
+            self.data = [{"date" : str(date),"time": str(values[0]),"predicted": str(values[1]),"verified": str(round(values[2],2))} for date , values in self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'].items()]
         else:
             self.data = []
 
@@ -236,32 +236,38 @@ class RVData(RecycleView):
 class GraphModel_1(MDRelativeLayout):
     grid_nombre = NumericProperty(24)
     prediction = ListProperty([])
+    graphs = ListProperty([])
+    predicted_optimized_plot = ObjectProperty(MeshLinePlot(color=[.2, .1, .5, 1]))
 
     def __init__(self, **kwargs):
         super(GraphModel_1, self).__init__(**kwargs)
         # self.prediction = np.arange(0, 24, 0.1)
-        self.prediction= np.load("sanLuis.npy")
+    
+        # self.new_graph()
 
+        self.clear_widgets()
         self.graph = Graph(xlabel="", ylabel="y", x_ticks_major=1, y_ticks_major=1,
                            y_grid_label=True, x_grid_label=True, x_grid=False, y_grid=True,
-                           xmin=0, xmax=100, ymin=-1, ymax=1, draw_border=False,label_options={'color': (0, 0, 0, 1),},)
-        # self.graph.size = (1200, 400)
-        # self.graph.pos = self.center
-        # self.graph.pos = self.pos
-        gap = self.width / len(self.prediction)
-
-        self.plot = MeshLinePlot(color=[1, 0, 0, 1])
-
-        # self.plot.points = [(i, self.height /2 + ( p)) for i,p in enumerate(self.prediction)]
-        # self.plot2 = MeshLinePlot(color=[0, 0, 0, 1])
-        # self.plot2.points = [(x, cos(x / 10.)) for x in range(0, 101)]
+                           xmin=0, xmax=23, ymin=-1, ymax=1, draw_border=False,label_options={'color': (0, 0, 0, 1),},)
 
         self.add_widget(self.graph)
-        self.graph.add_plot(self.plot)
+        self.graph.add_plot(self.predicted_optimized_plot)
         self.bind(pos=self.updateDisplay)
         self.bind(size=self.updateDisplay)
-
         self.bind(prediction=self.updateDisplay)
+
+    def add_plot(self,plot):
+        self.graph.add_plot(plot)
+        self.graphs.append(plot)
+
+
+    def reset_graph(self):
+        for plot in self.graphs:
+            self.graph.remove_plot(plot)
+        self.graphs = []
+
+
+
 
     def updateDisplay(self, *args):
         
@@ -277,10 +283,12 @@ class GraphModel_1(MDRelativeLayout):
             
     def update_graph(self, plot):
 
-        self.graph.xmax = len(plot)
+        self.graph.xmax = len(plot) -1
         self.graph.x_ticks_major = 1
-        self.graph.ymin = int(min(plot)) -1
-        self.graph.ymax = int(max(plot)) + 1
+        min_t =int(min(plot))
+        max_t =int(max(plot)) 
+        self.graph.ymin = min_t -1
+        self.graph.ymax = max_t +1
 
 
 
@@ -316,7 +324,7 @@ class Add_port(MDBoxLayout):
             # if self.app.ports[self.selected_country][self.selected_port]['constituants']:
                 # self.load_constituant()
             self.ids.rv_constituant.update()
-            self.ids.rv_data.update()
+            # self.ids.rv_data.update()
 
 
 class Add_country_dialog(MDBoxLayout):
@@ -326,25 +334,14 @@ class Add_port_dialog(MDBoxLayout):
 
 
 class Constituant_MDGridLayout(MDGridLayout):
-
-
-
-
     constituant_name = StringProperty("")
-    amplitude_initial= StringProperty("")
-    amplitude_optimized= StringProperty("")
-    phase_initial= StringProperty("")
     phase_optimized= StringProperty("")
-    speed_initial= StringProperty("")
+    amplitude_optimized= StringProperty("")
     speed_optimized= StringProperty("")
     
     def __init__(self,**kwargs):
         super(Constituant_MDGridLayout, self).__init__(**kwargs)
 class Data_MDGridLayout(MDGridLayout):
-
-
-
-
     date = StringProperty("")
     time= StringProperty("")
     predicted= StringProperty("")
@@ -352,6 +349,14 @@ class Data_MDGridLayout(MDGridLayout):
     def __init__(self,**kwargs):
         super(Data_MDGridLayout, self).__init__(**kwargs)
 
+class Single_maree(MDGridLayout):
+    designation = StringProperty("")
+    heure= StringProperty("")
+    hauteur= StringProperty("")
+    index= NumericProperty(1)
+
+class Export_DAY(ModalView):
+    date = StringProperty("")
 
 class MainApp(MDApp):
     
@@ -366,7 +371,7 @@ class MainApp(MDApp):
     selected_port = StringProperty("")
     selected_country = StringProperty("")
     date_mode= StringProperty("from") 
-    from_date = StringProperty("2023-10-01")  
+    start_date = StringProperty("2023-10-01")  
     tide_data = ObjectProperty(None)
     store = ObjectProperty(JsonStore('data.json'))
     ModalAdd= ObjectProperty(None)
@@ -412,7 +417,9 @@ class MainApp(MDApp):
                                     "MS4":"Shallow water quarter diurnal constituent",
                                     "2SM2":"Shallow water semidiurnal constituent",
                                     "LAM2":"Smaller lunar evectional constituent",})
-        
+
+    list_training_constituants = ListProperty(["M2","S2","N2","K1","O1","P1","M4"])
+  
     ports_old = DictProperty({
                         "Etats-Unis": {
                             "Los Angeles" : [],
@@ -466,20 +473,30 @@ class MainApp(MDApp):
                             "San Luis" : {
                             "data":{},
                             "constituants": {
-
-                                'M2':[[1.8, 190.4, 28.984104],[0.0, 0.0, 0.0]],
-                                'S2':[[0.45, 196.3, 30.0],[0.0, 0.0, 0.0]],
-                                'N2':[[0.4, 164.1, 28.43973],[0.0, 0.0, 0.0]],
-                                'K1':[[1.26, 219.9, 15.041069],[0.0, 0.0, 0.0]],
-                                'O1':[[0.77, 204.1, 13.943035],[0.0, 0.0, 0.0]],
-                                'P1':[[0.39, 215.0, 14.958931],[0.0, 0.0, 0.0]],
-                                'M4':[[0.0, 259.1, 57.96821],[0.0, 0.0, 0.0]],
+                                'M2':[1.8, 190.4, 28.984104],
+                                'S2':[0.45, 196.3, 30.0],
+                                'N2':[0.4, 164.1, 28.43973],
+                                'K1':[1.26, 219.9, 15.041069],
+                                'O1':[0.77, 204.1, 13.943035],
+                                'P1':[0.39, 215.0, 14.958931],
+                                'M4':[0.0, 259.1, 57.96821],
                             },
+                            "RMSE": 0
+                  
                             },
                             }
                         ,})
-   
-
+    speeds = DictProperty({
+                        "M2": 28.984104,                  
+                        "S2": 30.0,
+                        "N2": 28.43973,
+                        "K1": 15.041069,
+                        "O1": 13.943035,
+                        "P1": 14.958931,
+                        "M4": 57.96821,
+                        })
+        # Combine date and time into one datetime column (if necessary) and convert to seconds since epoch
+    epoch = ObjectProperty(datetime(1983, 1, 1))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -530,9 +547,9 @@ class MainApp(MDApp):
     def open_add_port(self):
         self.Add_port.init()
         self.ModalAdd.open()
-
-
-
+        self.Add_port.ids.rv_constituant.update()
+        # self.Add_port.ids.rv_data.update()
+        
     def on_start(self):
         Logger.info("App: Starting")
         if self.ModalAdd is None:
@@ -571,7 +588,11 @@ class MainApp(MDApp):
 
         countrys = list(self.ports.keys())
         country = countrys[0] if len(countrys) else "null"
+        self.start_date=(datetime.now().strftime("%Y-%m-%d"))
+        self.end_date=self.start_date
         self.select_port("country",country)
+
+        print("start_date",self.start_date)
         # if   self.search_dropdown.datas == [] :
         #     phoneType = self.get_PhoneNumberType()
         #     if phoneType :
@@ -705,159 +726,451 @@ class MainApp(MDApp):
             self.end_date = self.start_date
         print("Range selected from", self.start_date, "to", self.end_date)
 
+        self.prediction(self.screen.ids.home_screen.ids.graph)
         #111
         #print(instance, value, date_range)
-        #self.from_date = value.strftime("%Y-%m-%d")
+        #self.start_date = value.strftime("%Y-%m-%d")
 
     def on_cancel(self, instance, value):
         '''Events called when the "CANCEL" dialog box button is clicked.'''
 
     def load_data(self,path):
         # csv_file_path = '0101-3112-2023(m).csv'
-        self.tide_data = pd.read_csv(path)
+        data = pd.read_csv(path)
         snackbar = Snackbar(
             text="data loaded",
             snackbar_x="10dp",
             snackbar_y="10dp",
         )
         snackbar.open()
-        # data = self.tide_data.T.to_dict('list')
-        print(self.tide_data['Verified (m)'].values)
-        
+ 
+        self.train(data)
         # self.ports[self.Add_port.selected_country][self.Add_port.selected_port]['data'] = [ [a ,b ,c] for zip(self.tide_data['Verified (m)'].values) ]
         # self.Add_port.ids.rv_data.update()
         # # print(self.tide_data.head())
 
         # # self.Add_port.load_data()
-        # # self.predcition2(self.screen.ids.home_screen.ids.graph)
+        # # self.prediction2(self.screen.ids.home_screen.ids.graph)
         # self.Add_port.ids.rv_data.update()
-    def train(self):
-        Logger.info("App: Train")
-        
-        constituents = [
-            ('M2', 1.8, 190.4, 28.984104),
-            ('S2', 0.45, 196.3, 30.0),
-            ('N2', 0.4, 164.1, 28.43973),
-            ('K1', 1.26, 219.9, 15.041069),
-            ('O1', 0.77, 204.1, 13.943035),
-            ('P1', 0.39, 215.0, 14.958931),
-            ('M4', 0.0, 259.1, 57.96821)
-        ]
 
-    def predcition2(self,graph):
 
+
+    def prediction(self,graph):
+        self.actual_predictions = []
         print("prediction",graph)
         # Define the constituents
-
-        if not self.ports[self.Add_port.selected_country] or not self.ports[self.Add_port.selected_country][self.Add_port.selected_port] or not self.ports[self.Add_port.selected_country][self.Add_port.selected_port]['constituants'] :
-            Snackbar(
-                text="No data",
-                snackbar_x="10dp",
-                snackbar_y="10dp",
-            ).open()
-            return
-
-
-        if self.tide_data is not None:
-
-            # Combine date and time into one datetime column (if necessary) and convert to seconds since epoch
-            epoch = datetime(1983, 1, 1)
-            self.tide_data['Datetime'] = pd.to_datetime(self.tide_data['Date'] + ' ' + self.tide_data['Time (GMT)'])
-            self.tide_data['Seconds since epoch'] = (self.tide_data['Datetime'] - epoch).dt.total_seconds()
-
-            # Extract observed heights and times
-            observed_heights = self.tide_data['Verified (m)'].values
-            times = self.tide_data['Seconds since epoch'].values
-
-            # Convert amplitudes from feet to meters and phases from degrees to radians
-            amplitudes = np.array([amp for _, amp, _, _ in constituents]) * 0.3048
-            phases = np.array([phase for _, _, phase, _ in constituents]) * np.pi / 180
-            speeds = np.array([speed for _, _, _, speed in constituents]) * np.pi / 180 / 3600
-
-            # Prediction function
-            def predict_tide(times, amplitudes, phases, speeds):
-                tide_height = np.sum(amplitudes * np.cos(speeds * times[:, None] + phases), axis=1)
-                return tide_height
-
-            # Loss function
-            def loss_fn(params, times, observed_heights):
-                num_constituents = len(speeds)
-                amplitudes = params[:num_constituents]
-                phases = params[num_constituents:]
-                predictions = predict_tide(times, amplitudes, phases, speeds)
-                return np.mean((predictions - observed_heights) ** 2)
-
-            # Initial parameters
-            initial_params = np.concatenate([amplitudes, phases])
-
-
+        constituents = [ (n,values[0],values[1],values[2]) for n,values in self.ports[self.selected_country][self.selected_port]['constituants'].items()]
        
+        # Combine date and time into one datetime column (if necessary) and convert to seconds since epoch
 
-        # Load the new NOAA data
-        noaa_data_path = '10-01-2023.csv'
-        noaa_data = self.tide_data
+      
+        # Convert amplitudes from feet to meters and phases from degrees to radians
+        amplitudes = np.array([amp for _, amp, _, _ in constituents]) 
+        phases = np.array([phase for _, _, phase, _ in constituents])
+        # speeds = np.array([speed for _,  _, _, speed in constituents]) 
 
-        noaa_data['Date'] = pd.to_datetime(noaa_data['Date'])
-        noaa_data = noaa_data.set_index('Date')
-        
-        noaa_data = noaa_data.loc[self.from_date:self.from_date]
-        print(noaa_data)
+        speeds = np.array([speed for  _,speed in self.speeds.items()]) * np.pi / 180 / 3600
 
-        
-        # noaa_data['Datetime'] = pd.to_datetime(noaa_data['Date'] + ' ' + noaa_data['Time (GMT)'])
-        noaa_timestamps = noaa_data['Datetime'].apply(lambda x: x.timestamp()).values
-        noaa_verified_heights = noaa_data['Verified (m)'].values
 
+        # Prediction function
+  
         # Generate timestamps for predictions
-        start_datetime = datetime(2024, 1, 10)
+        start_datetime = datetime.strptime(self.start_date, "%Y-%m-%d")
         timestamps = np.array([(start_datetime + timedelta(hours=i)).timestamp() for i in range(24)])
-        times_since_epoch = (timestamps - epoch.timestamp())
+        times_since_epoch = (timestamps - self.epoch.timestamp())
+        predicted_optimized = self.predict_tide(times_since_epoch, amplitudes, phases, speeds)
+        
+        # graph.reset_graph()
+        graph.update_graph(predicted_optimized)
+        graph.predicted_optimized_plot.points = [(i,( p)) for i,p in enumerate(predicted_optimized)]
+
+        def find_high_low_tides(times, predicted_heights):
+            high_tides = []
+            low_tides = []
+            self.actual_predictions.append((times[0],predicted_heights[0],"----"))
+            for i in range(1, len(predicted_heights) - 1):
+                if predicted_heights[i] > predicted_heights[i - 1] and predicted_heights[i] > predicted_heights[i + 1]:
+                    # high_tides.append((times[i], predicted_heights[i]))
+                    self.actual_predictions.append((times[i],predicted_heights[i],"Haute"))
+                elif predicted_heights[i] < predicted_heights[i - 1] and predicted_heights[i] < predicted_heights[i + 1]:
+                    # low_tides.append((times[i], predicted_heights[i]))
+                    self.actual_predictions.append((times[i],predicted_heights[i],"Basse"))
+                else:
+                    self.actual_predictions.append((times[i],predicted_heights[i],"----"))
+                    
+            self.actual_predictions.append((times[-1],predicted_heights[-1],"----"))
+
+            
+
+        # Find high and low tides
+        find_high_low_tides(timestamps, predicted_optimized)
+
+        #add desigation
+        # high_tides = [(t, h, 'Haute') for t, h in high_tides]
+        # low_tides = [(t, h, 'Basse') for t, h in low_tides]
+
+        # join high and low tides
+        # high_tides = high_tides + low_tides
+
+        # Sort high tides by time
+        # high_tides.sort(key=lambda x: x[0])
+
+        print("High Tides:")
+        index=1
+        self.screen.ids.home_screen.ids.maree_list.clear_widgets()
+        for time, height ,designation in self.actual_predictions:
+            # get only hours and minutes
+            time = datetime.fromtimestamp(time).strftime("%H:%M")
+            print(f"{time}: {height:.4f} meters")
+            self.screen.ids.home_screen.ids.maree_list.add_widget(Factory.Single_maree(designation=designation ,index=index,heure=str(time), hauteur=f"{height:.4f} m"))
+            index+=1
+
+        # for   c,a,p,s  in zip(constutuant_names,optimized_amplitudes, optimized_phases, speeds):
+
+        #     self.ports[self.selected_country][self.selected_port]['constituants'][c] = [a,p,s]
 
         # Predict tide heights for these times using initial and optimized parameters
-        predicted_initial = predict_tide(times_since_epoch, amplitudes, phases, speeds)
-     
+        # predicted_initial = predict_tide(times_since_epoch, amplitudes, phases, speeds)
+        # for plot in graph.graph.plots:
+        #     graph.graph.remove_plot(plot)
+
+        # graph.update_graph(predicted_initial)
+
+        # predicted_initial_plot = MeshLinePlot(color=[0, 0, 1, 1])
+        # predicted_initial_plot.points = [(i,( p)) for i,p in enumerate(predicted_initial)]
+
+        # graph.add_plot(predicted_initial_plot)
+        # # graph.graph.add_plot(predicted_initial_plot)
+        # graph.graph.add_plot(predicted_optimized_plot)
+
+        # graph.add_plot(noaa_verified_heights_plot)
+        # graph.update_graph(noaa_verified_heights)
+        # plt.figure(figsize=(12, 6))
+        # plt.plot(timestamps, predicted_initial, label='Initial Prediction', marker='o')
+        # plt.plot(timestamps, predicted_optimized, label='Optimized Prediction', marker='x')
+        # plt.plot(noaa_timestamps, noaa_verified_heights, label='NOAA Verified (New Data)', marker='s', linestyle='--', color='red')
+
+        # plt.xlabel('Hour of the Day on 10/01/2024')
+        # plt.ylabel('Tide Height (meters)')
+        # plt.title('24-Hour Tide Height Prediction Before and After Optimization with New NOAA Verified Data')
+        # plt.xticks(timestamps, [f"{i}:00" for i in range(24)], rotation=45)
+        # plt.legend()
+        # plt.tight_layout() # Adjust layout to prevent clipping of tick labels
+        # plt.show()<n
+
+
+
+    # Prediction function
+    def predict_tide(self,times, amplitudes, phases, speeds):
+            
+        # msl_2023 = tide_data['Verified (m)'].mean()
+        tide_height = np.sum(amplitudes * np.cos(speeds * times[:, None] + phases), axis=1)
+        return  tide_height
+
+
+    def train(self,data):
+        Logger.info("App: Train")
+
+        # Define the constituents
+        constituents = [ (n,values[0],values[1],values[2]) for n,values in self.ports[self.selected_country][self.selected_port]['constituants'].items()]
+        constutuant_names = [n for n,values in self.ports[self.selected_country][self.selected_port]['constituants'].items()]
+  
+        # Load the tide data from CSV
+        data['Datetime'] = pd.to_datetime(data['Date'] + ' ' + data['Time (GMT)'])
+        data['Seconds since epoch'] = (data['Datetime'] - self.epoch).dt.total_seconds()
+
+        # Extract observed heights and times
+        observed_heights = data['Verified (m)'].values
+        times = data['Seconds since epoch'].values
+
+
+
+        # Convert amplitudes from feet to meters and phases from degrees to radians
+        amplitudes = np.array([amp for _, amp, _, _ in constituents]) * 0.3048
+        phases = np.array([phase for _, _, phase, _ in constituents]) * np.pi / 180
+        speeds = np.array([speed for  _,speed in self.speeds.items()]) * np.pi / 180 / 3600
+        msl= data['Verified (m)'].mean()
+
+        # Prediction function
+        def predict_tide(times, amplitudes, phases, speeds):
+
+            tide_height = np.sum(amplitudes * np.cos(speeds * times[:, None] + phases), axis=1)
+            return msl + tide_height
+        # Loss function
+        def loss_fn(params, times, observed_heights):
+            num_constituents = len(speeds)
+            amplitudes = params[:num_constituents]
+            phases = params[num_constituents:]
+            predictions = predict_tide(times, amplitudes, phases, speeds)
+            return np.mean((predictions - observed_heights) ** 2)
+
+        # Initial parameters
+        initial_params = np.concatenate([amplitudes, phases])
+
+        # Marquer le début de l'optimisation
+        start_time = datetime.now()
+
+        # Run the optimizer
+        res = minimize(
+            fun=loss_fn,
+            x0=initial_params,
+            args=(times, observed_heights),
+            method='L-BFGS-B',
+            options={'maxfun': 50000, 'maxiter': 50000}
+        )
+
+        # Marquer la fin de l'optimisation
+        end_time = datetime.now()
+
+        # Calculer la durée
+        duration = end_time - start_time
+
+        if res.success:
+            optimized_params = res.x
+            optimized_amplitudes = optimized_params[:len(speeds)]
+            optimized_phases = optimized_params[len(speeds):]
+            print(len(speeds))
+            print("Optimization successful.")
+            print(f"Optimization time: {duration}")
+
+            # Affichage des constituants optimisés
+            print("Optimized Constituents:")
+            for i, constituent in enumerate(constituents):
+                name = constituent[0]
+                print(f"{name}: Amplitude (meters) = {optimized_amplitudes[i]:.4f}, Phase (degrees) = {optimized_phases[i]:.4f}")
+        else:
+            print("Optimization failed.")
+            print(f"Optimization failed with message: {res.message}")
+
+
+
+        # Load the new NOAA data
+        # noaa_data['Datetime'] = pd.to_datetime(noaa_data['Date'] + ' ' + noaa_data['Time (GMT)'])
+
+        # Generate timestamps for predictions
+        start_datetime = datetime.strptime(data['Date'][0], "%Y/%m/%d")
+        # 2023-01-01
+        start_datetime=datetime(2023, 1, 1)
+        data = data[:24]
+
+        timestamps = np.array([(start_datetime + timedelta(hours=i)).timestamp() for i in range(24)])
+        print("timestamps",start_datetime)
+        print("times",data)
+        times_since_epoch = (timestamps - self.epoch.timestamp())
+
+
+        predicted_optimized = predict_tide(times_since_epoch, optimized_amplitudes, optimized_phases, speeds)
+
 
         def calculate_rmse(observed, predicted):
             return np.sqrt(mean_squared_error(observed, predicted))
+        
 
+        noaa_verified_heights = data['Verified (m)'][:24].values
 
+        rmse = calculate_rmse(noaa_verified_heights, predicted_optimized)
 
+        print(f"RMSE: {rmse}")
         print('Optimized amplitude ' )
-        for plot in graph.graph.plots:
-            graph.graph.remove_plot(plot)
-
-
-
-        predicted_initial_plot = MeshLinePlot(color=[0, 0, 1, 1])
-        predicted_initial_plot.points = [(i,( p)) for i,p in enumerate(predicted_initial)]
-
-        graph.update_graph(predicted_initial)
-        graph.graph.add_plot(predicted_initial_plot)
-
-
-
-
         noaa_verified_heights_plot = MeshLinePlot(color=[1, 0, 0, 1])
         noaa_verified_heights_plot.points = [(i,( p)) for i,p in enumerate(noaa_verified_heights)]
+        # self.screen.ids.home_screen.ids.graph.graph.add_plot(noaa_verified_heights_plot)
+        self.prediction(self.screen.ids.home_screen.ids.graph)
 
-        graph.update_graph(noaa_verified_heights)
-        graph.graph.add_plot(noaa_verified_heights_plot)
+        if rmse > self.ports[self.selected_country][self.selected_port]["RMSE"] :
+        
+            for   c,a,p,s  in zip(constutuant_names,optimized_amplitudes, optimized_phases, speeds):
 
-    def predcition(self,graph):
+                self.ports[self.selected_country][self.selected_port]['constituants'][c] = [a,p,s]
 
+            Snackbar(
+                text="Model trained",
+                snackbar_x="10dp",
+                snackbar_y="10dp",
+            ).open()
+
+        else :
+            Snackbar(
+                text="Model not trained",
+                snackbar_x="10dp",
+                snackbar_y="10dp",
+            ).open()
+
+
+    
+
+
+    def file_manager_open(self):
+        self.file_manager.show(os.path.abspath(os.getcwd()))  # output manager to the screen
+        self.manager_open = True
+
+    def select_path(self, path):
+        '''It will be called when you click on the file name
+        or the catalog selection button.
+
+        :type path: str;
+        :param path: path to the selected directory or file;
+        '''
+        print(path)
+        self.load_data(path)
+        self.exit_manager()
+        
+    def exit_manager(self, *args):
+        '''Called when the user reaches the root of the directory tree.'''
+
+        self.manager_open = False
+        self.file_manager.close()
+
+    def events(self, instance, keyboard, keycode, text, modifiers):
+        '''Called when buttons are pressed on the mobile device.'''
+
+        if keyboard in (1001, 27):
+            if self.manager_open:
+                self.file_manager.back()
+    
+        return True
+    
+    def show_add_country_dialog(self):
+        if not self.dialog_country:
+            self.dialog_country = MDDialog(
+                title="Nouveau:",
+                type="custom",
+                content_cls=Add_country_dialog(),
+                buttons=[
+                    MDFlatButton(
+                        text="CANCEL", text_color=self.theme_cls.primary_color , on_release=self.dismiss_dialog_country
+                    ),
+                    MDFlatButton(
+                        text="Save", text_color=self.theme_cls.primary_color ,on_release=self.new_country,
+                    ),
+                ],
+            )
+        self.dialog_country.open()
+
+    def show_add_port_dialog(self):
+        if not self.dialog_port:
+            self.dialog_port = MDDialog(
+                title="Nouveau:",
+                type="custom",
+                content_cls=Add_port_dialog(),
+                buttons=[
+                    MDFlatButton(
+                        text="CANCEL", text_color=self.theme_cls.primary_color , on_release=self.dismiss_dialog_port
+                    ),
+                    MDFlatButton(
+                        text="OK", text_color=self.theme_cls.primary_color , on_release= self.new_port ,
+
+                    ),
+                ],
+            )
+        self.dialog_port.open()
+
+    def dismiss_dialog_port(self, *args):
+        self.dialog_port.dismiss()
+
+    def dismiss_dialog_country(self, *args):
+        self.dialog_country.dismiss()
+
+    def new_country(self, *args):
+        print("new_country")
+        country = self.dialog_country.content_cls.ids.country.text
+
+        lowered_country = [c.lower() for c in self.ports]
+
+        if not country or country.lower() in lowered_country:
+            Snackbar(text="Country already exists").open()
+            return
+        self.ports[country] = {}
+
+
+        self.Add_port.select_port( "country", country)
+        self.dialog_country.dismiss()
+        
+    def new_port(self, *args):
+        print("new_port")
+        print(self.dialog_port.content_cls.ids.port.text)
+        port = self.dialog_port.content_cls.ids.port.text
+        
+        lowered_ports = [c.lower() for c in self.ports[self.Add_port.selected_country]]
+
+        if not port or port in lowered_ports :
+            Snackbar(text="Port already exists").open()
+            return
+        self.ports[self.Add_port.selected_country][port] = {
+            "data": {},
+            "constituants": {constituant: [0, 0, 0] for constituant in self.list_training_constituants},
+            "prediction": [],
+            "RMSE": 0
+        }
+        self.Add_port.select_port("port",port)
+        self.dialog_port.dismiss()
+    
+    def select_port(self, search_mode, value):
+        if search_mode == "country":
+            self.selected_country = value
+            ports = list(self.ports[self.selected_country])
+            self.selected_port = ports[0] if len(ports) else ""
+
+
+        elif search_mode == "port":
+
+            self.selected_port = value
+
+        self.prediction(self.screen.ids.home_screen.ids.graph)
+    def change_country(self, country):
+        self.selected_country = country
+        ports = list(self.ports[self.selected_country])
+        self.selected_port = ports[0] if len(ports) else ""
+
+
+    def screen_shoot(self):
+        self.screen.ids.home_screen.ids.graph.export_to_png("screenshot.png")
+        Snackbar(text="Screenshot saved").open()
+    
+    def export_data(self):
+        # with open("sample.json", "w") as outfile: 
+        #     json.dump(self.ports, outfile)
+        self.screen.ids.home_screen.ids.graph.export_to_png("screenshot.png")
+        page = Factory.Export_DAY(date=self.start_date,size_hint=(.50,.80))
+        #copy the graph and the list of maree
+        # from copy import copy
+        # page.ids.graph.add_widget(copy(self.screen.ids.home_screen.ids.graph))
+        # page.ids.maree_list.add_widget(self.screen.ids.home_screen.ids.maree_list)
+
+        # export to png
+   
+        # page.export_to_png("screenshot.png")
+        # self.screen.ids.home_screen.ids.maree_list.export_to_png("screenshot.png")
+    
+        # Snackbar(text="Data exported").open()
+
+        index=1
+        page.ids.maree_list.clear_widgets()
+        for time, height ,designation in self.actual_predictions:
+            # get only hours and minutes
+            time = datetime.fromtimestamp(time).strftime("%H:%M")
+            print(f"{time}: {height:.4f} meters")
+            page.ids.maree_list.add_widget(Factory.Single_maree(designation=designation ,index=index,heure=str(time), hauteur=f"{height:.4f} m"))
+            index+=1
+        page.open()
+        clock = Clock.schedule_once(lambda dt: page.export_to_png("export.png"), 1)
+        # page.export_to_png("export.png")
+
+
+    def save_data(self):
+        "use json to save data ports"
+        pass
+
+    def save_model(self):
+        "use pickle to save model"
+        pass
+
+    def otrain(self,):
+        graph = self.screen.ids.home_screen.ids.graph
         print("prediction",graph)
         # Define the constituents
-        constituents = [ (n,values[0][0],values[0][1],values[0][2]) for n,values in self.ports[self.selected_country][self.selected_port]['constituants'].items()]
+        constituents = [ (n,values[0],values[1],values[2]) for n,values in self.ports[self.selected_country][self.selected_port]['constituants'].items()]
         constutuant_names = [n for n,values in self.ports[self.selected_country][self.selected_port]['constituants'].items()]
-        # [
-        #     ('M2', 1.8, 190.4, 28.984104),
-        #     ('S2', 0.45, 196.3, 30.0),
-        #     ('N2', 0.4, 164.1, 28.43973),
-        #     ('K1', 1.26, 219.9, 15.041069),
-        #     ('O1', 0.77, 204.1, 13.943035),
-        #     ('P1', 0.39, 215.0, 14.958931),
-        #     ('M4', 0.0, 259.1, 57.96821)
-        # ]
 
         # Load the tide data from CSV
         csv_file_path = '0101-3112-2023(m).csv'
@@ -939,15 +1252,15 @@ class MainApp(MDApp):
         timestamps = np.array([(start_datetime + timedelta(hours=i)).timestamp() for i in range(24)])
         times_since_epoch = (timestamps - epoch.timestamp())
 
-        # Predict tide heights for these times using initial and optimized parameters
-        predicted_initial = predict_tide(times_since_epoch, amplitudes, phases, speeds)
+
         predicted_optimized = predict_tide(times_since_epoch, optimized_amplitudes, optimized_phases, speeds)
 
     
 
         for   c,a,p,s  in zip(constutuant_names,optimized_amplitudes, optimized_phases, speeds):
 
-            self.ports[self.selected_country][self.selected_port]['constituants'][c][1] = [a,p,s]
+            self.ports[self.selected_country][self.selected_port]['constituants'][c] = [a,p,s]
+
         def calculate_rmse(observed, predicted):
             return np.sqrt(mean_squared_error(observed, predicted))
 
@@ -956,25 +1269,21 @@ class MainApp(MDApp):
 
         print('Optimized amplitude ' )
 
-        predicted_initial_plot = MeshLinePlot(color=[0, 0, 1, 1])
-        predicted_initial_plot.points = [(i,( p)) for i,p in enumerate(predicted_initial)]
+ 
 
-        graph.update_graph(predicted_initial)
-        graph.graph.add_plot(predicted_initial_plot)
+        # predicted_optimized_plot = MeshLinePlot(color=[.5, .5, 0, 1])
+        # predicted_optimized_plot.points = [(i,( p)) for i,p in enumerate(predicted_optimized)]
 
-        predicted_optimized_plot = MeshLinePlot(color=[.5, .5, 0, 1])
-        predicted_optimized_plot.points = [(i,( p)) for i,p in enumerate(predicted_optimized)]
-
-        graph.update_graph(predicted_optimized)
-        graph.graph.add_plot(predicted_optimized_plot)
+        # graph.update_graph(predicted_optimized)
+        # graph.graph.add_plot(predicted_optimized_plot)
 
 
 
-        noaa_verified_heights_plot = MeshLinePlot(color=[1, 0, 0, 1])
-        noaa_verified_heights_plot.points = [(i,( p)) for i,p in enumerate(noaa_verified_heights)]
+        # noaa_verified_heights_plot = MeshLinePlot(color=[1, 0, 0, 1])
+        # noaa_verified_heights_plot.points = [(i,( p)) for i,p in enumerate(noaa_verified_heights)]
 
-        graph.update_graph(noaa_verified_heights)
-        graph.graph.add_plot(noaa_verified_heights_plot)
+        # graph.update_graph(noaa_verified_heights)
+        # graph.graph.add_plot(noaa_verified_heights_plot)
 
 
 
@@ -990,177 +1299,17 @@ class MainApp(MDApp):
         # plt.legend()
         # plt.tight_layout() # Adjust layout to prevent clipping of tick labels
         # plt.show()
+    def change_day(self, day):
 
-    def file_manager_open(self):
-        self.file_manager.show(os.path.abspath(os.getcwd()))  # output manager to the screen
-        self.manager_open = True
+    
+        # previous_date = datetime.strptime(self.start_date, "%Y-%m-%d") - timedelta(days=day)
+        next_date = datetime.strptime(self.start_date, "%Y-%m-%d") + timedelta(days=day)
+        self.start_date = next_date.strftime("%Y-%m-%d") 
 
-    def select_path(self, path):
-        '''It will be called when you click on the file name
-        or the catalog selection button.
+        self.prediction(self.screen.ids.home_screen.ids.graph)
 
-        :type path: str;
-        :param path: path to the selected directory or file;
-        '''
-        print(path)
-        self.load_data(path)
-        self.exit_manager()
+    # add  if day == -1  or day == 1 add 1 or -1 to the start_date
         
-    def exit_manager(self, *args):
-        '''Called when the user reaches the root of the directory tree.'''
-
-        self.manager_open = False
-        self.file_manager.close()
-
-    def events(self, instance, keyboard, keycode, text, modifiers):
-        '''Called when buttons are pressed on the mobile device.'''
-
-        if keyboard in (1001, 27):
-            if self.manager_open:
-                self.file_manager.back()
-    
-        return True
-    
-
-    def show_add_country_dialog(self):
-        if not self.dialog_country:
-            self.dialog_country = MDDialog(
-                title="Nouveau:",
-                type="custom",
-                content_cls=Add_country_dialog(),
-                buttons=[
-                    MDFlatButton(
-                        text="CANCEL", text_color=self.theme_cls.primary_color , on_release=self.dismiss_dialog_country
-                    ),
-                    MDFlatButton(
-                        text="Save", text_color=self.theme_cls.primary_color ,on_release=self.new_country,
-                    ),
-                ],
-            )
-        self.dialog_country.open()
-
-    def show_add_port_dialog(self):
-        if not self.dialog_port:
-            self.dialog_port = MDDialog(
-                title="Nouveau:",
-                type="custom",
-                content_cls=Add_port_dialog(),
-                buttons=[
-                    MDFlatButton(
-                        text="CANCEL", text_color=self.theme_cls.primary_color , on_release=self.dismiss_dialog_port
-                    ),
-                    MDFlatButton(
-                        text="OK", text_color=self.theme_cls.primary_color , on_release= self.new_port ,
-
-                    ),
-                ],
-            )
-        self.dialog_port.open()
-
-    def dismiss_dialog_port(self, *args):
-        self.dialog_port.dismiss()
-
-    def dismiss_dialog_country(self, *args):
-        self.dialog_country.dismiss()
-
-    def new_country(self, *args):
-        print("new_country")
-        country = self.dialog_country.content_cls.ids.country.text
-
-        lowered_country = [c.lower() for c in self.ports]
-
-        if not country or country.lower() in lowered_country:
-            Snackbar(text="Country already exists").open()
-            return
-        self.ports[country] = {}
-
-
-        self.Add_port.select_port( "country", country)
-        self.dialog_country.dismiss()
-        
-
-    def new_port(self, *args):
-        print("new_port")
-        print(self.dialog_port.content_cls.ids.port.text)
-        port = self.dialog_port.content_cls.ids.port.text
-        
-        lowered_ports = [c.lower() for c in self.ports[self.Add_port.selected_country]]
-
-        if not port or port in lowered_ports :
-            Snackbar(text="Port already exists").open()
-            return
-        self.ports[self.Add_port.selected_country][port] = {
-            "data": {},
-            "constituants": {constituant: [[0, 0, 0],[0, 0, 0]] for constituant in self.constituants_description},
-            "prediction": []
-        }
-        self.Add_port.select_port("port",port)
-        self.dialog_port.dismiss()
-    
-    def select_port(self, search_mode, value):
-        if search_mode == "country":
-            self.selected_country = value
-            ports = list(self.ports[self.selected_country])
-            self.selected_port = ports[0] if len(ports) else ""
-
-
-        elif search_mode == "port":
-
-            self.selected_port = value
-
-        self.predcition(self.screen.ids.home_screen.ids.graph)
-    def change_country(self, country):
-        self.selected_country = country
-        ports = list(self.ports[self.selected_country])
-        self.selected_port = ports[0] if len(ports) else ""
-
-
-    def screen_shoot(self):
-        self.screen.ids.home_screen.ids.graph.export_to_png("screenshot.png")
-        Snackbar(text="Screenshot saved").open()
-    
-    def export_data(self):
-        with open("sample.json", "w") as outfile: 
-            json.dump(self.ports, outfile)
-            
-    def save_data(self):
-        "use json to save data ports"
-        pass
-
-    def save_model(self):
-        "use pickle to save model"
-        pass
 
 MainApp().run()
 
-'''
-
-
-def update_graph(self, plot_data):
-    days = (self.end_date - self.start_date).days + 1 
-    hours = days * 24  # تعداد ساعت‌های انتخاب شده
-    
-    self.graph.xmax = hours
-    self.graph.x_ticks_major = hours / days  # نمایش هر روز به عنوان یک میانگین بزرگ
-    self.graph.ymax = max(plot_data)
-    self.graph.ymin = min(plot_data)
-    
-    self.plot.points = [(i, p) for i, p in enumerate(plot_data)]
-    self.graph.add_plot(self.plot)
-
-
-
-def calculate(self):
- 
-    filtered_data = data[(data['date'] >= self.start_date) & (data['date'] <= self.end_date)]
-
-def on_save(self, instance, value, date_range):
-    if date_range:
-        self.start_date = datetime.strptime(date_range[0], "%Y-%m-%d")
-        self.end_date = datetime.strptime(date_range[1], "%Y-%m-%d")
-    else:
-        self.start_date = self.end_date = datetime.strptime(value, "%Y-%m-%d")
-    
-    # پس از ذخیره تاریخ، نمودار را به‌روزرسانی کنید.
-    self.calculate()
-'''

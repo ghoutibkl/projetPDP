@@ -227,13 +227,36 @@
             size_hint: 1, None
             hint_text:  root.text
             height: "30dp"
-            text: app.from_date
+            text: app.start_date
 
         MDIconButton:
             icon: "calendar-month"
             on_press: app.show_date_picker(root.text)
 
 
+<Single_maree>:
+    cols: 3
+    size_hint: 1, None
+    height: dp(30)
+    spacing: dp(10)
+
+
+    md_bg_color:  [0.8784313725490196, 0.8784313725490196, 0, 1.0] if root.index % 2 == 0 else [1,1,1, 1.0]
+    MDLabel:
+        size_hint: 1, 1
+        height: dp(15)
+        text: root.designation
+        halign: 'center'
+    MDLabel:
+        size_hint: 1, 1                             
+        height: dp(15)
+        text: root.heure
+        halign: 'center'
+    MDLabel:
+        size_hint: 1, 1
+        
+        text: root.hauteur
+        halign: 'center'
 
 <Search_dropdown>:
     # elevation: 10
@@ -281,12 +304,6 @@
     padding: 0
     spacing: dp(10)
     md_bg_color: [0.9333333333333333, 0.9333333333333333, 0.9333333333333333, 1.0]
-
-    # MDToolbar:
-    #     title: "Menu"
-
-    #     right_action_items: [["dots-vertical", lambda x: app.callback_1()], ["clock", lambda x: app.show_date_picker()]]
-    #     # right_action_items: [["magnify", lambda x: app.search()]]
     MDBoxLayout:
         size_hint: 1, 1
         orientation: 'vertical'
@@ -341,43 +358,107 @@
                             md_bg_color: 0,.1 , 1, 1
                             on_release: app.open_add_port()
 
+                        # MDRaisedButton:
+                        #     size_hint_x : 1
+                        #     text: "train"
+                        #     theme_text_color: "Custom"
+                        #     text_color: 1, 1, 1, 1
+                        #     md_bg_color: 0,.1 , 1, 1
+                        #     on_release: app.otrain()
 
 
-                        MyDatePicker:
-                            size_hint: 1, None
-                            height: dp(30)
-                            text: 'From'
+
+
                         MDBoxLayout:
                             size_hint: 1, 1
-                        MDRaisedButton:
-                            size_hint_x : 1
-                            text: "Entrainer"
-                            theme_text_color: "Custom"
-                            text_color: 1, 1, 1, 1
-                            md_bg_color: 0,.5 , .1, 1
-                            on_release: app.open_add_port()
+                            padding: 0,dp(10)
+                            MyDatePicker:
+                                size_hint: 1, None
+                                height: dp(30)
+                                text: 'From'
             MDCard:
                 size_hint: 1, 1
                 # height: self.minimum_height
                 padding: dp(10)
                 # RVConstituant :
+                MDRelativeLayout:
+                    size_hint: .1, 1
+                    MDIconButton:
+                        icon: 'arrow-left'
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                        on_release: app.change_day(-1)
 
-            MDGridLayout:
+                MDBoxLayout:
+                    size_hint: .8, 1
+                    cols: 1
+                    orientation: 'vertical'
+                    spacing: dp(10)
+                    MDLabel:
+                        size_hint_y: None
+                        height: dp(20)
+                        text: str(app.start_date)
+                        halign: 'center' 
+                        md_bg_color: [0.8784313725490196, 0.8784313725490196, 0.8784313725490196, 1.0]
+
+                                       
+                    MDBoxLayout:
+                        size_hint: 1, 1
+                        padding: 0,dp(10)
+                        orientation: 'vertical'
+                        MDGridLayout:
+                            cols: 3
+                            size_hint: 1, None
+                            height: dp(30)
+                            spacing: dp(10)
+                            md_bg_color: [0.8784313725490196, 0.8784313725490196, 0.8784313725490196, 1.0]
+
+                            MDLabel:
+                                size_hint: 1, 1
+                                height: dp(15)
+                                text: "Marée"
+                                halign: 'center'
+                            MDLabel:
+                                size_hint: 1, 1
+                                height: dp(15)
+                                text: "heure"
+                                halign: 'center'
+                            MDLabel:
+                                size_hint: 1, 1
+                                
+                                text: "Hauteur"
+                                halign: 'center'
+                            
+                        MDBoxLayout:
+                            size_hint: 1, 1
+                            ScrollView:
+                                MDBoxLayout:
+                                    orientation: 'vertical'
+                                    size_hint: 1,None
+                                    height: self.minimum_height
+                                    id: maree_list
+    
+
+  
+               
+                    
+
+                MDRelativeLayout:
+                    size_hint: .1, 1
+                    MDIconButton:
+                        icon: 'arrow-right'
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                        on_release: app.change_day(1)
+
+            MDRelativeLayout:
                 size_hint: .2, 1
                 cols: 1
                 spacing: dp(10)
       
-                MDRaisedButton:
-                    size_hint_x : 1
-                    text: "Save"
-                    theme_text_color: "Custom"
-                    text_color: 1, 1, 1, 1
-                    md_bg_color: 0.71, 0.71, 0.012, 1
-                    pos_hint: {'center_y': 0.5}
+ 
 
                 MDRaisedButton:
                     size_hint_x : 1
-                    text: "Export"
+                    text: "Exporter"
                     theme_text_color: "Custom"
                     text_color: 1, 1, 1, 1
                     md_bg_color: 0.71, 0.71, 0.012, 1
@@ -386,14 +467,99 @@
 
                     # on_release: app.predcition(graph)
 
-                MDRaisedButton:
-                    size_hint_x : 1
-                    text: "ScreenShoot"
-                    theme_text_color: "Custom"
-                    text_color: 1, 1, 1, 1
-                    md_bg_color: 0.71, 0.71, 0.012, 1
-                    pos_hint: {'center_y': 0.5}
-                    on_release: app.screen_shoot()
+
+<Export_DAY>: 
+    size_hint: 1, 1
+    MDBoxLayout:
+        
+
+        orientation: 'vertical'
+        size_hint: 1, 1
+        spacing: dp(10)
+        padding: dp(10)
+        md_bg_color: [0.9333333333333333, 0.9333333333333333, 0.9333333333333333, 1.0]
+
+        FloatLayout:
+            size_hint: 1, .1
+            MDIconButton:
+                icon: 'arrow-left'
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                on_release: print.export_to_png("export.png")
+                
+        MDBoxLayout:
+            id: print
+            size_hint: 1,1
+            orientation: 'vertical'
+            md_bg_color: [0.9333333333333333, 0.9333333333333333, 0.9333333333333333, 1.0]
+
+            
+            FitImage: 
+                id: graph_print
+                size_hint: 1, .3
+                source: "screenshot.png"
+                keep_ratio: True
+
+                
+            
+            MDCard:
+                size_hint: 1, .7
+                padding: dp(10)
+                orientation: 'vertical'
+
+                MDLabel:
+                    size_hint_y: None
+                    height: dp(20)
+                    text: str(app.start_date)
+                    halign: 'center' 
+                    md_bg_color: [0.8784313725490196, 0.8784313725490196, 0.8784313725490196, 1.0]
+            
+                MDBoxLayout:
+                    size_hint: 1, 1
+                    padding: 0,dp(10)
+                    orientation: 'vertical'
+                    MDGridLayout:
+                        cols: 3
+                        size_hint: 1, None
+                        height: dp(30)
+                        spacing: dp(10)
+                        md_bg_color: [0.8784313725490196, 0.8784313725490196, 0.8784313725490196, 1.0]
+
+                        MDLabel:
+                            size_hint: 1, 1
+                            height: dp(15)
+                            text: "Marée"
+                            halign: 'center'
+                        MDLabel:
+                            size_hint: 1, 1
+                            height: dp(15)
+                            text: "heure"
+                            halign: 'center'
+                        MDLabel:
+                            size_hint: 1, 1
+                            
+                            text: "Hauteur"
+                            halign: 'center'
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                        size_hint: 1,1                               
+                        ScrollView:
+
+                            MDBoxLayout:
+                                orientation: 'vertical'
+                                size_hint: 1,None
+                                height: self.minimum_height
+                                id: maree_list
+
+
+
+            
+                
+
+    
+
+              
+          
+
 
 <ModalAdd@ModalView>:
     size_hint: .8, .8
@@ -443,7 +609,7 @@
     size_hint: 1, None
     height: dp(30)
     spacing: dp(10)
-    cols : 7
+    cols : 4
     MDBoxLayout:
         orientation: 'vertical'
         size_hint: .166, None
@@ -453,33 +619,7 @@
             text: root.constituant_name
             font_style: "Caption"
             halign: 'center'
-    MDBoxLayout:
-        orientation: 'vertical'
-        size_hint: .166, None
-        height: dp(10)
-        MDLabel:
-         
-            text: root.amplitude_initial
-            font_style: "Caption"
-            halign: 'center'
-    MDBoxLayout:
-        orientation: 'vertical'
-        size_hint: .166, None
-        height: dp(10)
-        MDLabel:
-           
-            text: root.phase_initial
-            font_style: "Caption"
-            halign: 'center'
-    MDBoxLayout:
-        orientation: 'vertical'
-        size_hint: .166, None
-        height: dp(10)
-        MDLabel:
-            
-            text: root.speed_initial
-            font_style: "Caption"
-            halign: 'center'
+ 
     MDBoxLayout:
         orientation: 'vertical'
         size_hint: .166, None
@@ -686,210 +826,93 @@
 
         MDSeparator:
             
-        MDGridLayout:
+     
+                
+      
+
+
+
+
+        MDBoxLayout:
             size_hint: 1, 1
+            orientation: 'vertical'
             spacing: dp(10)
-            cols: 2
             MDLabel:
-                size_hint: .5, None
+                size_hint: 1, None
                 height: dp(15)
                 text: "Constituant"
                 halign: 'center'
-                
-            MDLabel:
-                size_hint: .5, None
-                height: dp(15)
-                text: "Data"
-                halign: 'center'
+
+            MDCard:
+                size_hint: 1, 1
+                padding: dp(10)
 
 
-
-
-            MDBoxLayout:
-                size_hint: .5, 1
-
-                MDCard:
-                    size_hint: 1, 1
-                    padding: dp(10)
-
-
-                    orientation: 'vertical'
-                    MDGridLayout:
-                        size_hint: 1, None
-                        height: dp(10)
-                        # spacing: dp(10)
-                        padding: 0 , 0 ,dp(5) , 0
-                        cols : 3
-                        MDBoxLayout:
-                            orientation: 'vertical'
-                            size_hint: .1, None
-                            height: dp(10)
-                            MDLabel:
-                                text: "-"
-                                font_style: "Caption"
-                                halign: 'center'
-                        MDBoxLayout:
-                            orientation: 'vertical'
-                            size_hint: .45, None
-                            height: dp(10)
-                            MDLabel:
-                                text: "initial"
-                                font_style: "Caption"
-                                halign: 'center'
-                          
-                        MDBoxLayout:
-                            orientation: 'vertical'
-                            size_hint: .45, None
-                            height: dp(10)
-                            MDLabel:
-                                text: "Optimized"
-                                font_style: "Caption"
-                                halign: 'center'
-                          
-                    MDSeparator:
-
-                    MDGridLayout:
-                        size_hint: 1, None
-                        height: dp(30)
-                        spacing: dp(10)
-                        cols : 7
-                        MDBoxLayout:
-                            orientation: 'vertical'
-                            size_hint: .166, None
-                            height: dp(10)
-                            MDLabel:
-                                text: "constituant"
-                                font_style: "Caption"
-                                halign: 'center'
-                        MDBoxLayout:
-                            orientation: 'vertical'
-                            size_hint: .166, None
-                            height: dp(10)
-                            MDLabel:
-                                text: "Amplitude"
-                                font_style: "Caption"
-                                halign: 'center'
-                        MDBoxLayout:
-                            orientation: 'vertical'
-                            size_hint: .166, None
-                            height: dp(10)
-                            MDLabel:
-                                text: "Phase"
-                                font_style: "Caption"
-                                halign: 'center'
-                        MDBoxLayout:
-                            orientation: 'vertical'
-                            size_hint: .166, None
-                            height: dp(10)
-                            MDLabel:
-                                text: "Speed"
-                                font_style: "Caption"
-                                halign: 'center'
-                        MDBoxLayout:
-                            orientation: 'vertical'
-                            size_hint: .166, None
-                            height: dp(10)
-                            MDLabel:
-                                text: "Amplitude"
-                                font_style: "Caption"
-                                halign: 'center'
-                        MDBoxLayout:
-                            orientation: 'vertical'
-                            size_hint: .166, None
-                            height: dp(10)
-                            MDLabel:
-                                text: "Phase"
-                                font_style: "Caption"
-                                halign: 'center'
-                        MDBoxLayout:
-                            orientation: 'vertical'
-                            size_hint: .166, None
-                            height: dp(10)
-                            MDLabel:
-                                text: "Speed"
-                                font_style: "Caption"
-                                halign: 'center'
-
-                    RVConstituant:
-                        id : rv_constituant
-
-
-            MDBoxLayout:
-                size_hint: .5, 1
                 orientation: 'vertical'
+        
+
                 MDGridLayout:
                     size_hint: 1, None
-                    height: dp(45)
+                    height: dp(20)
                     spacing: dp(10)
-                    cols : 5
-
-                    MDFlatButton:
-                  
-      
-                        text: "NB : 1"
-                        disabled: True
-
-                    MDFlatButton:
-                        line_color: 0, 0, 0, 1
-                        text: "DATA"
                     
-                    MDFlatButton:
-                        line_color: 0, 0, 0, 1
-                        text: "DATA"
-                    MDFlatButton:
-                        line_color: 0, 0, 0, 1
-                        text: "DATA"
-                    
-                    MDFlatButton:
-                        line_color: 0, 0, 0, 1
-                        text: "DATA"
+                    cols : 4
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                        size_hint: .166, None
+                        height: dp(10)
+                        MDLabel:
+                            text: "constituant"
+                            font_style: "Caption"
+                            halign: 'center'
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                        size_hint: .166, None
+                        height: dp(10)
+                        MDLabel:
+                            text: "Amplitude"
+                            font_style: "Caption"
+                            halign: 'center'
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                        size_hint: .166, None
+                        height: dp(10)
+                        MDLabel:
+                            text: "Phase"
+                            font_style: "Caption"
+                            halign: 'center'
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                        size_hint: .166, None
+                        height: dp(10)
+                        MDLabel:
+                            text: "Speed"
+                            font_style: "Caption"
+                            halign: 'center'
 
-                RVData:
-                    id : rv_data
 
-        MDGridLayout:
+                RVConstituant:
+                    padding: dp(20),0
+                    pos_hint: {'center_x': 0.5}
+
+                    id : rv_constituant
+
+
+
+
+        MDRelativeLayout:
             size_hint: 1, None
             height: dp(40)
-            cols: 3
+            MDRectangleFlatIconButton: 
+                text: "Entrainer"
+                icon: "content-save"
+                theme_text_color: "Custom"
+                text_color: 0, 0, 0, 1
+                md_bg_color: 0, 1, 0, 1
+                pos_hint: {'center_x': 0.5}
+                height: dp(40)
 
-            MDBoxLayout:
-                size_hint: .333, 1
-
-                MDRectangleFlatIconButton: 
-                    text: "Load constituant" 
-                    icon: "content-save"
-                    theme_text_color: "Custom"
-                    text_color: 0, 0, 0, 1
-                    md_bg_color: 0, 1, 0, 1
-                    on_release: app.add_country()
-                    pos_hint: {'center_x': 0.5}
-                    height: dp(40)
-            MDBoxLayout:
-                size_hint: .333, 1
-
-                MDRectangleFlatIconButton: 
-                    text: "Save"
-                    icon: "content-save"
-                    theme_text_color: "Custom"
-                    text_color: 0, 0, 0, 1
-                    md_bg_color: 0, 1, 0, 1
-                    on_release: app.add_country()
-                    pos_hint: {'center_x': 0.5}
-                    height: dp(40)
-
-            MDBoxLayout:
-                size_hint: .333, 1
-
-                MDRectangleFlatIconButton: 
-                    text: "Load Data"
-                    icon: "content-save"
-                    theme_text_color: "Custom"
-                    text_color: 0, 0, 0, 1
-                    md_bg_color: 0, 1, 0, 1
-                    pos_hint: {'center_y': 0.5}
-                    height: dp(40)
-
-                    on_release: app.file_manager_open()
+                on_release: app.file_manager_open()
 
 
 
