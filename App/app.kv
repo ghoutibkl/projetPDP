@@ -479,12 +479,7 @@
         padding: dp(10)
         md_bg_color: [0.9333333333333333, 0.9333333333333333, 0.9333333333333333, 1.0]
 
-        FloatLayout:
-            size_hint: 1, .1
-            MDIconButton:
-                icon: 'arrow-left'
-                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-                on_release: print.export_to_png("export.png")
+
                 
         MDBoxLayout:
             id: print
@@ -551,8 +546,16 @@
                                 id: maree_list
 
 
+    FloatLayout:
+        size_hint: 1, 1
+        MDRaisedButton:
+            text: "save"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+            md_bg_color: 0.71, 0.71, 0.012, 1
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            on_release: print.export_to_png("export.png")
 
-            
                 
 
     
@@ -609,10 +612,10 @@
     size_hint: 1, None
     height: dp(30)
     spacing: dp(10)
-    cols : 4
+    cols : 3
     MDBoxLayout:
         orientation: 'vertical'
-        size_hint: .166, None
+        size_hint: .33, None
         height: dp(10)
         MDLabel:
             id: constituant
@@ -622,7 +625,7 @@
  
     MDBoxLayout:
         orientation: 'vertical'
-        size_hint: .166, None
+        size_hint: .33, None
         height: dp(10)
         MDLabel:
             
@@ -631,21 +634,14 @@
             halign: 'center'
     MDBoxLayout:
         orientation: 'vertical'
-        size_hint: .166, None
+        size_hint: .33, None
         height: dp(10)
         MDLabel:
          
             text: root.phase_optimized
             font_style: "Caption"
             halign: 'center'
-    MDBoxLayout:
-        orientation: 'vertical'
-        size_hint: .166, None
-        height: dp(10)
-        MDLabel:
-            text: root.speed_optimized
-            font_style: "Caption"
-            halign: 'center'
+
 <Data_MDGridLayout>:
     size_hint: 1, None
     height: dp(30)
@@ -856,10 +852,10 @@
                     height: dp(20)
                     spacing: dp(10)
                     
-                    cols : 4
+                    cols : 3
                     MDBoxLayout:
                         orientation: 'vertical'
-                        size_hint: .166, None
+                        size_hint: .33, None
                         height: dp(10)
                         MDLabel:
                             text: "constituant"
@@ -867,7 +863,7 @@
                             halign: 'center'
                     MDBoxLayout:
                         orientation: 'vertical'
-                        size_hint: .166, None
+                        size_hint: .33, None
                         height: dp(10)
                         MDLabel:
                             text: "Amplitude"
@@ -875,20 +871,13 @@
                             halign: 'center'
                     MDBoxLayout:
                         orientation: 'vertical'
-                        size_hint: .166, None
+                        size_hint: .33, None
                         height: dp(10)
                         MDLabel:
                             text: "Phase"
                             font_style: "Caption"
                             halign: 'center'
-                    MDBoxLayout:
-                        orientation: 'vertical'
-                        size_hint: .166, None
-                        height: dp(10)
-                        MDLabel:
-                            text: "Speed"
-                            font_style: "Caption"
-                            halign: 'center'
+            
 
 
                 RVConstituant:

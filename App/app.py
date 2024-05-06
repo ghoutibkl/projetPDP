@@ -208,7 +208,7 @@ class RVConstituant(RecycleView):
     def update(self):
 
         if self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'] :
-            self.data = [{"constituant_name" : str(name),"amplitude_optimized": str(round(values[0],5)),"phase_optimized": str(round(values[1],5)),"speed_optimized": str(round(values[2],5)) } for name , values in self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'].items()]
+            self.data = [{"constituant_name" : str(name),"amplitude_optimized": str(round(values[0],5)),"phase_optimized": str(round(values[1],5)), } for name , values in self.app.ports[self.app.Add_port.selected_country][self.app.Add_port.selected_port]['constituants'].items()]
         else:
             self.data = []
 class RVData(RecycleView):
@@ -470,18 +470,19 @@ class MainApp(MDApp):
                         ,})
     ports = DictProperty({
                         "Etats-Unis": {
+             
                             "San Luis" : {
-                            "data":{},
                             "constituants": {
-                                'M2':[1.8, 190.4, 28.984104],
-                                'S2':[0.45, 196.3, 30.0],
-                                'N2':[0.4, 164.1, 28.43973],
-                                'K1':[1.26, 219.9, 15.041069],
-                                'O1':[0.77, 204.1, 13.943035],
-                                'P1':[0.39, 215.0, 14.958931],
-                                'M4':[0.0, 259.1, 57.96821],
+                                'M2':[0, 0],
+                                'S2':[0, 0],
+                                'N2':[0, 0],
+                                'K1':[0, 0],
+                                'O1':[0, 0],
+                                'P1':[0, 0],
+                                'M4':[0, 0],
                             },
-                            "RMSE": 0
+                            "RMSE": 0,
+                            "msl": 0,
                   
                             },
                             }
@@ -495,7 +496,7 @@ class MainApp(MDApp):
                         "P1": 14.958931,
                         "M4": 57.96821,
                         })
-        # Combine date and time into one datetime column (if necessary) and convert to seconds since epoch
+    # Combine date and time into one datetime column (if necessary) and convert to seconds since epoch
     epoch = ObjectProperty(datetime(1983, 1, 1))
 
     def __init__(self, **kwargs):
@@ -531,8 +532,9 @@ class MainApp(MDApp):
 
     def get_gata(self):
         Logger.info("App: Getting Data")
-        if  self.cache.exists('user'):
-            self.ports = self.store.get('ports')
+        if  self.store.exists('ports'):
+            self.ports = self.store.get('ports')['data']
+            print("ports",self.ports)
 
     def save_data(self):
         Logger.info("App: Saving Data")
@@ -551,6 +553,7 @@ class MainApp(MDApp):
         # self.Add_port.ids.rv_data.update()
         
     def on_start(self):
+        self.get_gata()
         Logger.info("App: Starting")
         if self.ModalAdd is None:
             self.ModalAdd = Factory.ModalAdd()
@@ -759,18 +762,21 @@ class MainApp(MDApp):
         self.actual_predictions = []
         print("prediction",graph)
         # Define the constituents
-        constituents = [ (n,values[0],values[1],values[2]) for n,values in self.ports[self.selected_country][self.selected_port]['constituants'].items()]
+        print("selected_port",self.selected_port)
+        print(self.ports[self.selected_country][self.selected_port])
+
+        constituents = [ (n,values[0],values[1]) for n,values in self.ports[self.selected_country][self.selected_port]['constituants'].items()]
        
         # Combine date and time into one datetime column (if necessary) and convert to seconds since epoch
 
       
         # Convert amplitudes from feet to meters and phases from degrees to radians
-        amplitudes = np.array([amp for _, amp, _, _ in constituents]) 
-        phases = np.array([phase for _, _, phase, _ in constituents])
+        amplitudes = np.array([amp for _, amp, _ in constituents]) 
+        phases = np.array([phase for _, _, phase in constituents])
         # speeds = np.array([speed for _,  _, _, speed in constituents]) 
 
         speeds = np.array([speed for  _,speed in self.speeds.items()]) * np.pi / 180 / 3600
-
+        msl = self.ports[self.selected_country][self.selected_port]["msl"]
 
         # Prediction function
   
@@ -778,7 +784,7 @@ class MainApp(MDApp):
         start_datetime = datetime.strptime(self.start_date, "%Y-%m-%d")
         timestamps = np.array([(start_datetime + timedelta(hours=i)).timestamp() for i in range(24)])
         times_since_epoch = (timestamps - self.epoch.timestamp())
-        predicted_optimized = self.predict_tide(times_since_epoch, amplitudes, phases, speeds)
+        predicted_optimized = self.predict_tide(msl,times_since_epoch, amplitudes, phases, speeds)
         
         # graph.reset_graph()
         graph.update_graph(predicted_optimized)
@@ -861,19 +867,21 @@ class MainApp(MDApp):
 
 
     # Prediction function
-    def predict_tide(self,times, amplitudes, phases, speeds):
+    def predict_tide(self,msl,times, amplitudes, phases, speeds):
+        """Predict tide heights for a given set of times using the provided amplitudes, phases, and speeds."""
             
         # msl_2023 = tide_data['Verified (m)'].mean()
         tide_height = np.sum(amplitudes * np.cos(speeds * times[:, None] + phases), axis=1)
-        return  tide_height
+        return msl + tide_height
 
 
     def train(self,data):
+        """Train the tide model using the provided tide data."""
         Logger.info("App: Train")
 
         # Define the constituents
-        constituents = [ (n,values[0],values[1],values[2]) for n,values in self.ports[self.selected_country][self.selected_port]['constituants'].items()]
-        constutuant_names = [n for n,values in self.ports[self.selected_country][self.selected_port]['constituants'].items()]
+        constituents = [ (n,values[0],values[1]) for n,values in self.ports[self.Add_port.selected_country][self.Add_port.selected_port]['constituants'].items()]
+        constutuant_names = [n for n,values in self.ports[self.Add_port.selected_country][self.Add_port.selected_port]['constituants'].items()]
   
         # Load the tide data from CSV
         data['Datetime'] = pd.to_datetime(data['Date'] + ' ' + data['Time (GMT)'])
@@ -886,22 +894,20 @@ class MainApp(MDApp):
 
 
         # Convert amplitudes from feet to meters and phases from degrees to radians
-        amplitudes = np.array([amp for _, amp, _, _ in constituents]) * 0.3048
-        phases = np.array([phase for _, _, phase, _ in constituents]) * np.pi / 180
+        amplitudes = np.array([amp for _, amp, _ in constituents]) * 0.3048
+        phases = np.array([phase for _, _, phase in constituents]) * np.pi / 180
         speeds = np.array([speed for  _,speed in self.speeds.items()]) * np.pi / 180 / 3600
         msl= data['Verified (m)'].mean()
 
         # Prediction function
-        def predict_tide(times, amplitudes, phases, speeds):
 
-            tide_height = np.sum(amplitudes * np.cos(speeds * times[:, None] + phases), axis=1)
-            return msl + tide_height
         # Loss function
         def loss_fn(params, times, observed_heights):
+            """Calculate the mean squared error between the observed and predicted tide heights."""
             num_constituents = len(speeds)
             amplitudes = params[:num_constituents]
             phases = params[num_constituents:]
-            predictions = predict_tide(times, amplitudes, phases, speeds)
+            predictions = self.predict_tide(msl,times, amplitudes, phases, speeds)
             return np.mean((predictions - observed_heights) ** 2)
 
         # Initial parameters
@@ -959,7 +965,7 @@ class MainApp(MDApp):
         times_since_epoch = (timestamps - self.epoch.timestamp())
 
 
-        predicted_optimized = predict_tide(times_since_epoch, optimized_amplitudes, optimized_phases, speeds)
+        predicted_optimized = self.predict_tide(msl,times_since_epoch, optimized_amplitudes, optimized_phases, speeds)
 
 
         def calculate_rmse(observed, predicted):
@@ -972,35 +978,33 @@ class MainApp(MDApp):
 
         print(f"RMSE: {rmse}")
         print('Optimized amplitude ' )
-        noaa_verified_heights_plot = MeshLinePlot(color=[1, 0, 0, 1])
-        noaa_verified_heights_plot.points = [(i,( p)) for i,p in enumerate(noaa_verified_heights)]
-        # self.screen.ids.home_screen.ids.graph.graph.add_plot(noaa_verified_heights_plot)
-        self.prediction(self.screen.ids.home_screen.ids.graph)
+        # noaa_verified_heights_plot = MeshLinePlot(color=[1, 0, 0, 1])
+        # noaa_verified_heights_plot.points = [(i,( p)) for i,p in enumerate(noaa_verified_heights)]
+        # # self.screen.ids.home_screen.ids.graph.graph.add_plot(noaa_verified_heights_plot)
+        # self.prediction(self.screen.ids.home_screen.ids.graph)
 
-        if rmse > self.ports[self.selected_country][self.selected_port]["RMSE"] :
-        
-            for   c,a,p,s  in zip(constutuant_names,optimized_amplitudes, optimized_phases, speeds):
+        self.ports[self.Add_port.selected_country][self.Add_port.selected_port]["RMSE"] = rmse
+        self.ports[self.Add_port.selected_country][self.Add_port.selected_port]["msl"] = msl
+        constituants = {}
+        for   c,a,p  in zip(constutuant_names,optimized_amplitudes, optimized_phases):
 
-                self.ports[self.selected_country][self.selected_port]['constituants'][c] = [a,p,s]
-
-            Snackbar(
-                text="Model trained",
-                snackbar_x="10dp",
-                snackbar_y="10dp",
-            ).open()
-
-        else :
-            Snackbar(
-                text="Model not trained",
-                snackbar_x="10dp",
-                snackbar_y="10dp",
-            ).open()
+            constituants[c] = [a,p]
+        self.ports[self.Add_port.selected_country][self.Add_port.selected_port]['constituants'] = constituants
+        self.Add_port.ids.rv_constituant.update()
+        Logger.info(f"port: {self.ports}")
+        self.save_data()
+        Snackbar(
+            text="Model trained",
+            snackbar_x="10dp",
+            snackbar_y="10dp",
+        ).open()
 
 
     
 
 
     def file_manager_open(self):
+        "open the file manager"
         self.file_manager.show(os.path.abspath(os.getcwd()))  # output manager to the screen
         self.manager_open = True
 
@@ -1031,6 +1035,7 @@ class MainApp(MDApp):
         return True
     
     def show_add_country_dialog(self):
+        "show the dialog country"
         if not self.dialog_country:
             self.dialog_country = MDDialog(
                 title="Nouveau:",
@@ -1048,6 +1053,7 @@ class MainApp(MDApp):
         self.dialog_country.open()
 
     def show_add_port_dialog(self):
+        "show the dialog port"
         if not self.dialog_port:
             self.dialog_port = MDDialog(
                 title="Nouveau:",
@@ -1066,12 +1072,15 @@ class MainApp(MDApp):
         self.dialog_port.open()
 
     def dismiss_dialog_port(self, *args):
+        "dismiss the dialog port"
         self.dialog_port.dismiss()
 
     def dismiss_dialog_country(self, *args):
+        "dismiss the dialog country"
         self.dialog_country.dismiss()
 
     def new_country(self, *args):
+        "add a new country to the ports"
         print("new_country")
         country = self.dialog_country.content_cls.ids.country.text
 
@@ -1087,6 +1096,7 @@ class MainApp(MDApp):
         self.dialog_country.dismiss()
         
     def new_port(self, *args):
+        "add a new port to the selected country"
         print("new_port")
         print(self.dialog_port.content_cls.ids.port.text)
         port = self.dialog_port.content_cls.ids.port.text
@@ -1100,12 +1110,14 @@ class MainApp(MDApp):
             "data": {},
             "constituants": {constituant: [0, 0, 0] for constituant in self.list_training_constituants},
             "prediction": [],
-            "RMSE": 0
+            "RMSE": 0,
+            "msl":0
         }
         self.Add_port.select_port("port",port)
         self.dialog_port.dismiss()
     
     def select_port(self, search_mode, value):
+        "change the selected port and update the graph"
         if search_mode == "country":
             self.selected_country = value
             ports = list(self.ports[self.selected_country])
@@ -1118,16 +1130,19 @@ class MainApp(MDApp):
 
         self.prediction(self.screen.ids.home_screen.ids.graph)
     def change_country(self, country):
+        "change the selected country and update the selected port to the first port of the country"
         self.selected_country = country
         ports = list(self.ports[self.selected_country])
         self.selected_port = ports[0] if len(ports) else ""
 
 
     def screen_shoot(self):
+        "take a screenshot of the graph and save it as screenshot.png"
         self.screen.ids.home_screen.ids.graph.export_to_png("screenshot.png")
         Snackbar(text="Screenshot saved").open()
     
     def export_data(self):
+        "use json to save data ports"
         # with open("sample.json", "w") as outfile: 
         #     json.dump(self.ports, outfile)
         self.screen.ids.home_screen.ids.graph.export_to_png("screenshot.png")
@@ -1159,13 +1174,14 @@ class MainApp(MDApp):
 
     def save_data(self):
         "use json to save data ports"
-        pass
+        self.store.put('ports',data=self.ports)
 
     def save_model(self):
         "use pickle to save model"
         pass
 
     def otrain(self,):
+        "Old train function"
         graph = self.screen.ids.home_screen.ids.graph
         print("prediction",graph)
         # Define the constituents
@@ -1300,7 +1316,7 @@ class MainApp(MDApp):
         # plt.tight_layout() # Adjust layout to prevent clipping of tick labels
         # plt.show()
     def change_day(self, day):
-
+        "change day for the prediction"
     
         # previous_date = datetime.strptime(self.start_date, "%Y-%m-%d") - timedelta(days=day)
         next_date = datetime.strptime(self.start_date, "%Y-%m-%d") + timedelta(days=day)
@@ -1309,7 +1325,10 @@ class MainApp(MDApp):
         self.prediction(self.screen.ids.home_screen.ids.graph)
 
     # add  if day == -1  or day == 1 add 1 or -1 to the start_date
-        
+
+ 
+    
+
 
 MainApp().run()
 
